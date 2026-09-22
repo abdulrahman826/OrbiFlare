@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: orbiflare
+      POSTGRES_PASSWORD: orbiflare
+      POSTGRES_DB: orbiflare
+    ports:
+      - "5432:5432"
+    volumes:
+      - orbiflare_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orbiflare"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://orbiflare:orbiflare@db:5432/orbiflare
+      ORBIFLARE_MODE: demo
+      CORS_ORIGINS: http://localhost:3000
+      FIRMS_MAP_KEY: ${FIRMS_MAP_KEY:-}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/../data
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api
+    ports:
+      - "3000:3000"
+
+volumes:
+  orbiflare_pgdata:

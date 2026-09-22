@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html, body {
+  background-color: #0a0c0f;
+  color: #d4d7da;
+}
+
+body {
+  font-feature-settings: "tnum" 1;
+}
+
+::selection {
+  background: #1f8f9e;
+  color: #0a0c0f;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #12151b;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #2a3038;
+  border-radius: 4px;
+}
+
+.maplibregl-popup-content {
+  background: #12151b !important;
+  color: #d4d7da !important;
+  border: 1px solid #2a3038 !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5) !important;
+}
+.maplibregl-popup-tip {
+  border-top-color: #12151b !important;
+  border-bottom-color: #12151b !important;
+}
+.maplibregl-ctrl-attrib { font-size: 10px; }
+
+/* OSM raster tiles are a light basemap by nature; invert+rotate to match
+   the dark industrial theme while keeping labels/roads legible. Markers
+   and popups are excluded (only the tile canvas is filtered). */
+.orbiflare-map .maplibregl-canvas {
+  filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.9) saturate(0.5);
+}
+
