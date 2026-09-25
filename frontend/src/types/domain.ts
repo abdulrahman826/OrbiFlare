@@ -409,6 +409,7 @@ export interface Health {
 
 export interface FirmsStatus {
   configured: boolean;
+  manual_refresh_enabled?: boolean;
   source_products: string[];
   last_attempt_at: string | null;
   last_sync_at: string | null;

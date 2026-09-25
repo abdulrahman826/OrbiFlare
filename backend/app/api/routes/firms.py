@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
+from app.config import get_settings
 from app.ingestion import firms_refresh
 from app.storage.database import get_db
 
@@ -13,6 +14,8 @@ router = APIRouter(prefix="/firms", tags=["firms"])
 
 @router.post("/refresh")
 def refresh(db: Session = Depends(get_db)):
+    if not get_settings().firms_manual_refresh:
+        return JSONResponse(status_code=403, content={"status": "FAILED", "code": "DISABLED", "message": "Manual refresh is disabled on this deployment.", "showing": "last available data"})
     try:
         return firms_refresh.refresh_firms(db)
     except firms_refresh.FirmsError as err:

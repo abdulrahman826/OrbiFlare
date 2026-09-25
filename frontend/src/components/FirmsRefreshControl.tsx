@@ -31,9 +31,11 @@ export function FirmsRefreshControl({ firms }: { firms: FirmsStatus | null }) {
     <div className="flex flex-col items-end gap-1">
       <div className="flex items-center gap-3">
         <span className="font-mono text-[11px] text-base-400">Last sync: {formatIst(syncedAt)}</span>
-        <button onClick={refresh} disabled={ui.buttonDisabled} className="btn" aria-busy={ui.state === "running"}>
-          {ui.buttonLabel}
-        </button>
+        {firms?.manual_refresh_enabled !== false && (
+          <button onClick={refresh} disabled={ui.buttonDisabled} className="btn" aria-busy={ui.state === "running"}>
+            {ui.buttonLabel}
+          </button>
+        )}
       </div>
       {(ui.title || ui.lines.length > 0) && (
         <div role="status" aria-live="polite" className={cn("text-right text-[11px] leading-snug", tone)}>

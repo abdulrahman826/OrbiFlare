@@ -1,0 +1,21 @@
+# Render Blueprint: the FastAPI backend. (The Next.js frontend is deployed on Vercel, see DEPLOY.md.)
+services:
+  - type: web
+    name: orbiflare-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile.render
+    dockerContext: .
+    plan: starter            # the pipeline needs more than the 512 MB of the free plan
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit
+    envVars:
+      - key: ORBIFLARE_MODE
+        value: real
+      - key: FIRMS_AUTO_SYNC
+        value: "true"
+      - key: FIRMS_MANUAL_REFRESH
+        value: "false"       # public API: do not let visitors spend the NASA quota
+      - key: FIRMS_MAP_KEY
+        sync: false          # set in the Render dashboard (a NEW, rotated key)
+      - key: CORS_ORIGINS
+        sync: false          # your Vercel URL, e.g. https://orbiflare.vercel.app

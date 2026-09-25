@@ -1,0 +1,14 @@
+# Backend image for Render. Build context is the REPO ROOT so the facility/reference data (data/) ships with the API.
+FROM python:3.12-slim
+ENV PYTHONUNBUFFERED=1
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential && rm -rf /var/lib/apt/lists/*
+COPY backend/requirements.txt backend/requirements.txt
+RUN pip install --no-cache-dir -r backend/requirements.txt
+COPY backend/app backend/app
+COPY data/facilities data/facilities
+COPY data/reference data/reference
+RUN mkdir -p backend/data
+WORKDIR /app/backend
+# Render injects $PORT
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

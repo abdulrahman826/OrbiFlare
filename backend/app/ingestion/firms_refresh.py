@@ -131,6 +131,7 @@ def status_summary(db: Session) -> dict:
     s = get_settings()
     return {
         "configured": bool(s.firms_map_key),
+        "manual_refresh_enabled": bool(s.firms_manual_refresh),
         "source_products": list(s.firms_source_list),
         "last_attempt_at": _iso(st.last_attempt_at) if st else None,
         "last_sync_at": _iso(st.last_sync_at) if st else None,

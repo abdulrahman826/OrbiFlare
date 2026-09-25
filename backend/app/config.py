@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     firms_map_key: str = ""
     firms_api_base: str = "https://firms.modaps.eosdis.nasa.gov/api/area/csv"
     firms_sources: str = "VIIRS_NOAA21_NRT,VIIRS_NOAA20_NRT"   # VIIRS 375 m NRT products fetched by the refresh
+    firms_manual_refresh: bool = True               # False on public deployments: the refresh endpoint spends the server's MAP_KEY quota
     firms_auto_sync: bool = False                   # try one live sync in the background at server start (needs a key)
     firms_day_range: int = 5                        # FIRMS Area API allows 1-5 days; more days = more real history for baselines
     firms_bbox: str = "68,6,98,37"                  # west,south,east,north -- India only
