@@ -10,7 +10,7 @@ describe("format helpers", () => {
   });
 
   it("labels the two development classes without inventing a third", () => {
-    expect(classificationLabel("PERSISTENT_INDUSTRIAL_THERMAL_SOURCE")).toBe("Persistent Industrial Source");
+    expect(classificationLabel("PERSISTENT_INDUSTRIAL_THERMAL_SOURCE")).toBe("Persistent Industrial-Source Candidate");
     expect(classificationLabel("NATURAL_AGRICULTURAL_FIRE_CANDIDATE")).toBe("Natural/Agricultural Candidate");
     expect(classificationLabel(null)).toBe("No class (no usable facility)");
   });

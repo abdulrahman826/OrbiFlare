@@ -56,7 +56,7 @@ export function facilityTypeLabel(t: string): string {
 
 export function classificationLabel(c: string | null): string {
   if (!c) return "No class (no usable facility)";
-  if (c === "PERSISTENT_INDUSTRIAL_THERMAL_SOURCE") return "Persistent Industrial Source";
+  if (c === "PERSISTENT_INDUSTRIAL_THERMAL_SOURCE") return "Persistent Industrial-Source Candidate";
   if (c === "NATURAL_AGRICULTURAL_FIRE_CANDIDATE") return "Natural/Agricultural Candidate";
   return c;
 }

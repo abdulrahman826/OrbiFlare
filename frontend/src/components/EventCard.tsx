@@ -51,6 +51,10 @@ export function EventCard({ event, facilityName, selected }: { event: ThermalEve
         <span className="text-base-500"> · </span>
         <span className="font-mono">{fmtDate(event.first_detected)}</span>
       </div>
+      <div className="mt-0.5 text-[11px] text-base-400" data-testid="ml-evidence">
+        <span className="text-[10px] font-bold uppercase tracking-[0.08em] text-base-500">ML evidence</span>{" "}
+        {event.classification === "PERSISTENT_INDUSTRIAL_THERMAL_SOURCE" ? "Class A" : event.classification === "NATURAL_AGRICULTURAL_FIRE_CANDIDATE" ? "Class B candidate" : "not assessed (no usable facility)"}
+      </div>
       <div className="mt-0.5 truncate text-[11px] text-base-400">
         {event.facility_id
           ? `Near ${facilityName ?? event.facility_id}${event.facility_distance_km !== null ? ` · ~${fmtNum(event.facility_distance_km)} km (spatial association)` : ""}`

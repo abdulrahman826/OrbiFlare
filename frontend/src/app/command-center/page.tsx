@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AgentPanel } from "@/components/AgentPanel";
 import { DistBars } from "@/components/DistBar";
 import { FirmsRefreshControl } from "@/components/FirmsRefreshControl";
 import { EventCard } from "@/components/EventCard";
@@ -59,6 +60,15 @@ export default async function CommandCenterPage() {
     { label: "No facility context", value: active.filter((e) => !e.baseline_confidence).length, colorClass: "bg-base-700" },
   ];
 
+  const topEvent = feed[0];
+  const suggestions = [
+    "show escalating events",
+    "how many high risk events are active?",
+    "which facility has the most persistent events?",
+    "which events have insufficient baseline?",
+    ...(topEvent ? [`why is ${topEvent.event_id} high risk?`, `compare ${topEvent.event_id} baseline`] : []),
+  ];
+
   return (
     <div className="space-y-3">
       <PageHeader title="Command Center" sub="Evolving thermal events prioritised for analyst investigation. Detections are observations, not confirmed fires." action={<FirmsRefreshControl firms={health?.firms ?? null} />} />
@@ -68,50 +78,66 @@ export default async function CommandCenterPage() {
         <KPI label="High priority" value={highPriority.length} tone={highPriority.length ? "critical" : "default"} sub="HIGH + CRITICAL" />
         <KPI label="Escalating" value={escalating.length} tone={escalating.length ? "high" : "default"} sub="trajectory ESCALATING" />
         <KPI label="Persistent" value={persistent.length} sub="≥ 6 observations" />
-        <KPI label="Needs validation" value={needsValidation.length} tone={needsValidation.length ? "warn" : "default"} sub="status DETECTED" />
+        <KPI label="Awaiting analyst review" value={needsValidation.length} tone={needsValidation.length ? "warn" : "default"} sub="status DETECTED" />
         <KPI label="Established twins" value={`${overview.facilities_with_established_baseline}/${overview.total_facilities}`} sub="facility baselines" />
       </div>
 
-      <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_400px]">
-        <Panel title="Thermal event map" sub="Interpreted events by severity · raw FIRMS observations as small dots · facilities as neutral squares" flush>
-          <div className="p-2">
-            {active.length === 0 ? <StateBlock kind="empty" title="No active events" /> : <MapPanel events={active} facilities={facilities} observations={firmsObs} height={520} />}
-          </div>
-        </Panel>
-        <Panel
-          title="Priority alert feed"
-          sub="Top by risk score (operational priority, not fire probability)"
-          action={<Link href="/events" className="text-[11px] font-semibold uppercase tracking-wider text-accent hover:text-accent-bright">All events →</Link>}
-          flush
-        >
-          <div className="scrollbar-thin max-h-[566px] space-y-2 overflow-y-auto p-2">
-            {feed.length === 0 && <StateBlock kind="empty" title="No active events" />}
-            {feed.map((e) => <EventCard key={e.event_id} event={e} facilityName={e.facility_id ? names[e.facility_id] : undefined} />)}
-          </div>
-        </Panel>
-      </div>
-
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
-        <Panel title="Severity distribution"><DistBars items={sevCounts} /></Panel>
-        <Panel title="Risk trajectory distribution"><DistBars items={trajCounts} /></Panel>
-        <Panel title="Facility activity" sub="Active events near each facility"><DistBars items={facilityItems} emptyText="No events with facility context." /></Panel>
-        <Panel title="Baseline coverage" sub="Active events by Thermal Twin state"><DistBars items={baselineItems} /></Panel>
-      </div>
-
-      <Panel title="Data status">
-        <div className="grid grid-cols-2 gap-3 text-xs text-base-300 sm:grid-cols-4">
-          <div>Facilities monitored <b className="font-mono text-base-100">{overview.total_facilities}</b></div>
-          <div>Events tracked <b className="font-mono text-base-100">{overview.total_events}</b></div>
-          <div>Demo events <b className="font-mono text-base-100">{overview.demo_events}</b></div>
-          <div>Live NASA FIRMS events <b className="font-mono text-base-100">{overview.total_events - overview.demo_events}</b> <span className="text-base-400">({firmsObs.length} raw observations)</span></div>
-          {incidentSummary && (
-            <div className="sm:col-span-4">
-              Historical reference incidents <b className="font-mono text-info">{incidentSummary.total}</b> <span className="text-base-400">(historical · not live · not FIRMS detections · not used for training)</span>{" "}
-              <Link href="/incidents" className="font-semibold uppercase tracking-wider text-accent hover:text-accent-bright">View →</Link>
+      <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(300px,28%)]">
+        <div className="min-w-0 space-y-3">
+        <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_360px]">
+          <Panel title="Thermal event map" sub="Interpreted events by severity · raw FIRMS observations as small dots · facilities as neutral squares" flush>
+            <div className="p-2">
+              {active.length === 0 ? <StateBlock kind="empty" title="No active events" /> : <MapPanel events={active} facilities={facilities} observations={firmsObs} height={520} />}
             </div>
-          )}
+          </Panel>
+          <Panel
+            title="Priority alert feed"
+            sub="Top by risk score (operational priority, not fire probability)"
+            action={<Link href="/events" className="text-[11px] font-semibold uppercase tracking-wider text-accent hover:text-accent-bright">All events →</Link>}
+            flush
+          >
+            <div className="scrollbar-thin max-h-[566px] space-y-2 overflow-y-auto p-2">
+              {feed.length === 0 && <StateBlock kind="empty" title="No active events" />}
+              {feed.map((e) => <EventCard key={e.event_id} event={e} facilityName={e.facility_id ? names[e.facility_id] : undefined} />)}
+            </div>
+          </Panel>
         </div>
-      </Panel>
+
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <Panel title="Severity distribution"><DistBars items={sevCounts} /></Panel>
+          <Panel title="Risk trajectory distribution"><DistBars items={trajCounts} /></Panel>
+          <Panel title="Facility activity" sub="Active events near each facility"><DistBars items={facilityItems} emptyText="No events with facility context." /></Panel>
+          <Panel title="Baseline coverage" sub="Active events by Thermal Twin state"><DistBars items={baselineItems} /></Panel>
+        </div>
+
+        <Panel title="Data status">
+          <div className="grid grid-cols-2 gap-3 text-xs text-base-300 sm:grid-cols-4">
+            <div>Facilities monitored <b className="font-mono text-base-100">{overview.total_facilities}</b></div>
+            <div>Events tracked <b className="font-mono text-base-100">{overview.total_events}</b></div>
+            <div>Demo events <b className="font-mono text-base-100">{overview.demo_events}</b></div>
+            <div>Live NASA FIRMS events <b className="font-mono text-base-100">{overview.total_events - overview.demo_events}</b> <span className="text-base-400">({firmsObs.length} raw observations)</span></div>
+            {incidentSummary && (
+              <div className="sm:col-span-4">
+                Historical reference incidents <b className="font-mono text-info">{incidentSummary.total}</b> <span className="text-base-400">(historical · not live · not FIRMS detections · not used for training)</span>{" "}
+                <Link href="/incidents" className="font-semibold uppercase tracking-wider text-accent hover:text-accent-bright">View →</Link>
+              </div>
+            )}
+          </div>
+        </Panel>
+        </div>
+        <aside className="min-w-0 xl:sticky xl:top-3 xl:self-start" aria-label="OrbiFlare Intelligence">
+          <section className="rounded border border-base-600 bg-base-850 shadow-sm">
+            <header className="border-b border-base-700 px-3 py-2.5">
+              <h2 className="text-[11px] font-bold uppercase tracking-[0.14em] text-base-100">ORBiFLARE Intelligence</h2>
+              <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-base-400">Read · Compare · Summarize</p>
+            </header>
+            <div className="scrollbar-thin max-h-[calc(100vh-9rem)] overflow-y-auto p-3">
+              <AgentPanel suggestions={suggestions} compact />
+            </div>
+            <footer className="border-t border-base-700 px-3 py-1.5 font-mono text-[10px] text-base-500">DETERMINISTIC · READ-ONLY · stored data only</footer>
+          </section>
+        </aside>
+      </div>
     </div>
   );
 }

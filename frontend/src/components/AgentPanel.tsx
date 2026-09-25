@@ -71,7 +71,7 @@ function GenericResult({ card }: { card: AgentResultCard }) {
   );
 }
 
-export function AgentPanel({ suggestions }: { suggestions: string[] }) {
+export function AgentPanel({ suggestions, compact = false }: { suggestions: string[]; compact?: boolean }) {
   const [entries, setEntries] = useState<Entry[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -96,20 +96,20 @@ export function AgentPanel({ suggestions }: { suggestions: string[] }) {
   return (
     <div className="space-y-3">
       <form onSubmit={(e) => { e.preventDefault(); void run(input); }} className="flex gap-2" role="search">
-        <span className="flex items-center text-[10px] font-bold uppercase tracking-[0.1em] text-base-400">Query</span>
+        {!compact && <span className="flex items-center text-[10px] font-bold uppercase tracking-[0.1em] text-base-400">Query</span>}
         <input
           ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} aria-label="Query"
-          placeholder="Query events, facilities, risk, baselines…  e.g. “show escalating events”"
-          className="flex-1 rounded border border-base-600 bg-base-900 px-3 py-2 font-mono text-sm text-base-100 placeholder:text-base-500 focus:border-accent focus:outline-none"
+          placeholder={compact ? "Ask about events, facilities, risk or thermal behaviour…" : "Query events, facilities, risk, baselines…  e.g. “show escalating events”"}
+          className="min-w-0 flex-1 rounded border border-base-600 bg-base-900 px-3 py-2 font-mono text-sm text-base-100 placeholder:text-base-500 focus:border-accent focus:outline-none"
         />
         <button type="submit" disabled={busy || !input.trim()} className="btn px-4 py-2">
           {busy ? "Running" : "Run"}
         </button>
       </form>
 
-      <div className="flex flex-wrap gap-1.5">
+      <div className={compact ? "flex flex-col gap-1" : "flex flex-wrap gap-1.5"}>
         {suggestions.map((s) => (
-          <button key={s} onClick={() => void run(s)} disabled={busy} className="rounded border border-base-600 px-2 py-1 font-mono text-[11px] text-base-300 hover:border-accent/60 hover:text-accent disabled:opacity-50">
+          <button key={s} onClick={() => void run(s)} disabled={busy} className={compact ? "rounded border border-base-700 px-2 py-1 text-left text-[11px] text-base-300 hover:border-accent/60 hover:text-accent disabled:opacity-50" : "rounded border border-base-600 px-2 py-1 font-mono text-[11px] text-base-300 hover:border-accent/60 hover:text-accent disabled:opacity-50"}>
             {s}
           </button>
         ))}
@@ -124,15 +124,16 @@ export function AgentPanel({ suggestions }: { suggestions: string[] }) {
       {entries.map((en, i) => (
         <article key={`${en.query}-${entries.length - i}`} className="rounded border border-base-700 bg-base-850">
           <header className="flex items-center gap-2 border-b border-base-700 px-3 py-1.5">
-            <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-base-400">Query</span>
-            <span className="font-mono text-xs text-base-100">{en.query}</span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-base-400">{compact ? "Question" : "Query"}</span>
+            <span className="min-w-0 break-words font-mono text-xs text-base-100">{en.query}</span>
           </header>
           <div className="space-y-2 p-3">
-            <div className="text-[10px] font-bold uppercase tracking-[0.1em] text-base-400">Result</div>
+            <div className="text-[10px] font-bold uppercase tracking-[0.1em] text-base-400">{compact ? "Finding" : "Result"}</div>
             {en.error && <p className="text-xs text-sev-critical">Could not reach the intelligence layer: {en.error}</p>}
             {en.response && (
               <>
-                <p className="text-sm leading-relaxed text-base-100">{en.response.text}</p>
+                <p className="break-words text-sm leading-relaxed text-base-100">{en.response.text || (en.response.result_cards.length ? "" : "Insufficient information available.")}</p>
+                {compact && en.response.result_cards.length > 0 && <div className="text-[10px] font-bold uppercase tracking-[0.1em] text-base-400">Evidence</div>}
                 {en.response.result_cards.map((c, ci) => (c.type === "event" ? <EventResult key={ci} card={c} /> : c.type === "incident" ? <IncidentResult key={ci} card={c} /> : <GenericResult key={ci} card={c} />))}
                 <div className="flex flex-wrap items-center justify-between gap-2 border-t border-base-700/60 pt-2">
                   <span className="font-mono text-[10px] text-base-500">
