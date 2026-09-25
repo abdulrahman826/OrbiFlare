@@ -1,0 +1,1316 @@
+{
+  "generated": "2026-09-25 05:13 UTC",
+  "rf": {
+    "main": {
+      "n": 285,
+      "confusion_matrix": {
+        "labels": [
+          "PERSISTENT_INDUSTRIAL_THERMAL_SOURCE",
+          "NATURAL_AGRICULTURAL_FIRE_CANDIDATE"
+        ],
+        "matrix": [
+          [
+            113,
+            22
+          ],
+          [
+            32,
+            118
+          ]
+        ]
+      },
+      "accuracy": 0.8105263157894737,
+      "balanced_accuracy": 0.8118518518518518,
+      "macro_f1": 0.8104679802955665,
+      "weighted_f1": 0.8106429867772881,
+      "per_class": {
+        "PERSISTENT_INDUSTRIAL_THERMAL_SOURCE": {
+          "precision": 0.7793103448275862,
+          "recall": 0.837037037037037,
+          "f1": 0.8071428571428572,
+          "support": 135
+        },
+        "NATURAL_AGRICULTURAL_FIRE_CANDIDATE": {
+          "precision": 0.8428571428571429,
+          "recall": 0.7866666666666666,
+          "f1": 0.8137931034482758,
+          "support": 150
+        }
+      },
+      "roc_auc": 0.8576790123456789,
+      "pr_auc_class_A": 0.8101805817800003,
+      "pr_auc_class_B": 0.8629869365557693,
+      "class_A_prevalence": 0.47368421052631576,
+      "accuracy_bootstrap_95ci": [
+        0.7649122807017544,
+        0.8526315789473684
+      ]
+    },
+    "rerun_vs_stored": {
+      "stored_accuracy": 0.8105263157894737,
+      "rerun_accuracy": 0.8105263157894737,
+      "identical": true,
+      "stored_confusion": [
+        [
+          113,
+          22
+        ],
+        [
+          32,
+          118
+        ]
+      ],
+      "rerun_confusion": [
+        [
+          113,
+          22
+        ],
+        [
+          32,
+          118
+        ]
+      ],
+      "stored_trained_at": "2026-09-25T04:50:10.453255"
+    },
+    "proxy_rule_reference": {
+      "accuracy": 0.8245614035087719,
+      "macro_f1": 0.8243862762496303,
+      "note": "The proxy LABEL RULE (dist<=5 km AND persistence>=2) applied directly to the observed features. It needs no learning.",
+      "accuracy_on_training_rows": 0.820627802690583
+    },
+    "ablations": {
+      "all_features (production)": {
+        "accuracy": 0.8105263157894737,
+        "balanced_accuracy": 0.8118518518518518,
+        "macro_f1": 0.8104679802955665,
+        "weighted_f1": 0.8106429867772881,
+        "roc_auc": 0.8576790123456789,
+        "pr_auc_class_A": 0.8101805817800003
+      },
+      "without dist_nearest_facility_km": {
+        "n": 285,
+        "confusion_matrix": {
+          "labels": [
+            "PERSISTENT_INDUSTRIAL_THERMAL_SOURCE",
+            "NATURAL_AGRICULTURAL_FIRE_CANDIDATE"
+          ],
+          "matrix": [
+            [
+              90,
+              45
+            ],
+            [
+              29,
+              121
+            ]
+          ]
+        },
+        "accuracy": 0.7403508771929824,
+        "balanced_accuracy": 0.7366666666666666,
+        "macro_f1": 0.7372421010664806,
+        "weighted_f1": 0.738746347579304,
+        "per_class": {
+          "PERSISTENT_INDUSTRIAL_THERMAL_SOURCE": {
+            "precision": 0.7563025210084033,
+            "recall": 0.6666666666666666,
+            "f1": 0.7086614173228346,
+            "support": 135
+          },
+          "NATURAL_AGRICULTURAL_FIRE_CANDIDATE": {
+            "precision": 0.7289156626506024,
+            "recall": 0.8066666666666666,
+            "f1": 0.7658227848101266,
+            "support": 150
+          }
+        },
+        "roc_auc": 0.7896296296296297,
+        "pr_auc_class_A": 0.7386384835997762,
+        "pr_auc_class_B": 0.8002550153097789,
+        "class_A_prevalence": 0.47368421052631576,
+        "features_used": [
+          "bt_kelvin",
+          "frp_mw",
+          "persistence_count",
+          "agri_season_flag",
+          "day_night_bin",
+          "acq_month"
+        ],
+        "delta_macro_f1_vs_production": -0.07322587922908597,
+        "delta_accuracy_vs_production": -0.07017543859649122,
+        "delta_pr_auc_A_vs_production": -0.07154209818022406
+      },
+      "without persistence_count": {
+        "n": 285,
+        "confusion_matrix": {
+          "labels": [
+            "PERSISTENT_INDUSTRIAL_THERMAL_SOURCE",
+            "NATURAL_AGRICULTURAL_FIRE_CANDIDATE"
+          ],
+          "matrix": [
+            [
+              113,
+              22
+            ],
+            [
+              38,
+              112
+            ]
+          ]
+        },
+        "accuracy": 0.7894736842105263,
+        "balanced_accuracy": 0.7918518518518518,
+        "macro_f1": 0.7894710922879937,
+        "weighted_f1": 0.7894322134500044,
+        "per_class": {
+          "PERSISTENT_INDUSTRIAL_THERMAL_SOURCE": {
+            "precision": 0.7483443708609272,
+            "recall": 0.837037037037037,
+            "f1": 0.7902097902097902,
+            "support": 135
+          },
+          "NATURAL_AGRICULTURAL_FIRE_CANDIDATE": {
+            "precision": 0.835820895522388,
+            "recall": 0.7466666666666667,
+            "f1": 0.7887323943661971,
+            "support": 150
+          }
+        },
+        "roc_auc": 0.8253333333333334,
+        "pr_auc_class_A": 0.7700975814385959,
+        "pr_auc_class_B": 0.845666884946296,
+        "class_A_prevalence": 0.47368421052631576,
+        "features_used": [
+          "bt_kelvin",
+          "frp_mw",
+          "dist_nearest_facility_km",
+          "agri_season_flag",
+          "day_night_bin",
+          "acq_month"
+        ],
+        "delta_macro_f1_vs_production": -0.020996888007572823,
+        "delta_accuracy_vs_production": -0.021052631578947323,
+        "delta_pr_auc_A_vs_production": -0.04008300034140444
+      },
+      "without dist AND persistence (the two label-rule inputs)": {
+        "n": 285,
+        "confusion_matrix": {
+          "labels": [
+            "PERSISTENT_INDUSTRIAL_THERMAL_SOURCE",
+            "NATURAL_AGRICULTURAL_FIRE_CANDIDATE"
+          ],
+          "matrix": [
+            [
+              89,
+              46
+            ],
+            [
+              40,
+              110
+            ]
+          ]
+        },
+        "accuracy": 0.6982456140350877,
+        "balanced_accuracy": 0.6962962962962962,
+        "macro_f1": 0.6965983363042186,
+        "weighted_f1": 0.6977749632548395,
+        "per_class": {
+          "PERSISTENT_INDUSTRIAL_THERMAL_SOURCE": {
+            "precision": 0.689922480620155,
+            "recall": 0.6592592592592592,
+            "f1": 0.6742424242424242,
+            "support": 135
+          },
+          "NATURAL_AGRICULTURAL_FIRE_CANDIDATE": {
+            "precision": 0.7051282051282052,
+            "recall": 0.7333333333333333,
+            "f1": 0.7189542483660131,
+            "support": 150
+          }
+        },
+        "roc_auc": 0.754567901234568,
+        "pr_auc_class_A": 0.7102411773638999,
+        "pr_auc_class_B": 0.773698607532431,
+        "class_A_prevalence": 0.47368421052631576,
+        "features_used": [
+          "bt_kelvin",
+          "frp_mw",
+          "agri_season_flag",
+          "day_night_bin",
+          "acq_month"
+        ],
+        "delta_macro_f1_vs_production": -0.11386964399134791,
+        "delta_accuracy_vs_production": -0.11228070175438598,
+        "delta_pr_auc_A_vs_production": -0.09993940441610039
+      },
+      "only dist AND persistence": {
+        "n": 285,
+        "confusion_matrix": {
+          "labels": [
+            "PERSISTENT_INDUSTRIAL_THERMAL_SOURCE",
+            "NATURAL_AGRICULTURAL_FIRE_CANDIDATE"
+          ],
+          "matrix": [
+            [
+              113,
+              22
+            ],
+            [
+              35,
+              115
+            ]
+          ]
+        },
+        "accuracy": 0.8,
+        "balanced_accuracy": 0.8018518518518518,
+        "macro_f1": 0.7999901503305795,
+        "weighted_f1": 0.800064022851233,
+        "per_class": {
+          "PERSISTENT_INDUSTRIAL_THERMAL_SOURCE": {
+            "precision": 0.7635135135135135,
+            "recall": 0.837037037037037,
+            "f1": 0.7985865724381626,
+            "support": 135
+          },
+          "NATURAL_AGRICULTURAL_FIRE_CANDIDATE": {
+            "precision": 0.8394160583941606,
+            "recall": 0.7666666666666667,
+            "f1": 0.8013937282229965,
+            "support": 150
+          }
+        },
+        "roc_auc": 0.8176049382716049,
+        "pr_auc_class_A": 0.777352028438772,
+        "pr_auc_class_B": 0.793009045927788,
+        "class_A_prevalence": 0.47368421052631576,
+        "features_used": [
+          "persistence_count",
+          "dist_nearest_facility_km"
+        ],
+        "delta_macro_f1_vs_production": -0.010477829964987029,
+        "delta_accuracy_vs_production": -0.010526315789473606,
+        "delta_pr_auc_A_vs_production": -0.03282855334122825
+      }
+    },
+    "ablation_stability": {
+      "corpus_seeds": "100..119",
+      "macro_f1_with_dist_mean": 0.8142025003872957,
+      "macro_f1_with_dist_sd": 0.02024805092668292,
+      "macro_f1_without_dist_mean": 0.7194796492705196,
+      "macro_f1_without_dist_sd": 0.03185127371209411,
+      "mean_drop": 0.09472285111677628
+    },
+    "importance": {
+      "impurity_based": {
+        "bt_kelvin": 0.13422376790604462,
+        "frp_mw": 0.11821093066916875,
+        "persistence_count": 0.2567092509555011,
+        "dist_nearest_facility_km": 0.4116005378596791,
+        "agri_season_flag": 0.027536349170291824,
+        "day_night_bin": 0.01649695850233279,
+        "acq_month": 0.0352222049369818
+      },
+      "permutation_macro_f1_drop_on_holdout": {
+        "bt_kelvin": -0.0007967332003273191,
+        "frp_mw": 0.001990404811079886,
+        "persistence_count": 0.09235019982376394,
+        "dist_nearest_facility_km": 0.21286600151121265,
+        "agri_season_flag": -0.004063426898173894,
+        "day_night_bin": -0.00011552003079985754,
+        "acq_month": -0.0012772136689838342
+      }
+    },
+    "holdout": {
+      "split": "regions 8-9 of 10",
+      "n_train": 1115,
+      "n_val": 285,
+      "region_id_definition": "rng.integers(0,10) drawn independently of every feature and label",
+      "consequence": "The 'geographic holdout' is a random 20% row split: region_id carries no geography, so it does NOT test spatial generalisation.",
+      "data": "Entirely synthetic (generate_synthetic_training_corpus); no real FIRMS observation is used to train or evaluate the RF."
+    },
+    "label_noise_ceiling": {
+      "label_flip_probability": 0.16,
+      "approx_max_accuracy_vs_proxy_labels": 0.84,
+      "note": "16% of proxy labels are flipped at random by construction, so no model can score much above ~84% accuracy against them."
+    }
+  },
+  "sentinel": {
+    "training_distance_all": {
+      "p0": 0.04212919903693161,
+      "p1": 0.07600900729768274,
+      "p5": 0.24690585404990767,
+      "p25": 1.5582813412388128,
+      "p50": 4.0044439606948545,
+      "p75": 13.412078167816372,
+      "p95": 43.59719252148601,
+      "p99": 79.00952763338827,
+      "p100": 171.99987506367034
+    },
+    "training_distance_class_A": {
+      "p0": 0.05300745202618678,
+      "p1": 0.059431249932662945,
+      "p5": 0.19172764866725273,
+      "p25": 0.8975161396198637,
+      "p50": 1.9587576202287151,
+      "p75": 3.7932184654976524,
+      "p95": 24.946098317283198,
+      "p99": 62.32960823085749,
+      "p100": 103.04721939657229
+    },
+    "training_distance_class_B": {
+      "p0": 0.04212919903693161,
+      "p1": 0.15962940506562676,
+      "p5": 0.6763454943903902,
+      "p25": 3.958389135907544,
+      "p50": 9.838833309670626,
+      "p75": 21.758420997371992,
+      "p95": 52.475187638302636,
+      "p99": 83.2786828779296,
+      "p100": 171.99987506367034
+    },
+    "frequency": {
+      "rows_with_dist_gt_40": {
+        "metric": "rows dist > 40 km",
+        "numerator": 89,
+        "denominator": 1400,
+        "percent": 6.36,
+        "population": "1,400 synthetic training corpus rows",
+        "date": "2026-09-25 05:13 UTC",
+        "method": "count"
+      },
+      "rows_with_dist_45_55": {
+        "metric": "rows 45..55 km",
+        "numerator": 22,
+        "denominator": 1400,
+        "percent": 1.57,
+        "population": "training corpus",
+        "date": "2026-09-25 05:13 UTC",
+        "method": "count"
+      },
+      "class_A_rows_with_dist_ge_45": {
+        "metric": "class A rows dist>=45",
+        "numerator": 13,
+        "denominator": 673,
+        "percent": 1.93,
+        "population": "class A rows",
+        "date": "2026-09-25 05:13 UTC",
+        "method": "count"
+      },
+      "class_B_rows_with_dist_ge_45": {
+        "metric": "class B rows dist>=45",
+        "numerator": 51,
+        "denominator": 727,
+        "percent": 7.02,
+        "population": "class B rows",
+        "date": "2026-09-25 05:13 UTC",
+        "method": "count"
+      },
+      "class_B_rows_45_55": {
+        "metric": "class B rows 45..55",
+        "numerator": 17,
+        "denominator": 727,
+        "percent": 2.34,
+        "population": "class B rows",
+        "date": "2026-09-25 05:13 UTC",
+        "method": "count"
+      },
+      "class_A_maximum_distance_km": 103.04721939657229
+    },
+    "p_class_A_vs_distance_sweep": {
+      "typical live event (median bt, frp)": {
+        "0.1": 0.4563,
+        "1": 0.4393,
+        "2": 0.3983,
+        "3": 0.3738,
+        "5": 0.3348,
+        "10": 0.2575,
+        "20": 0.2979,
+        "30": 0.3041,
+        "40": 0.3247,
+        "50": 0.3381,
+        "80": 0.3597,
+        "120": 0.3597
+      },
+      "persistent live event (persistence 6)": {
+        "0.1": 0.8458,
+        "1": 0.8631,
+        "2": 0.8305,
+        "3": 0.8229,
+        "5": 0.5794,
+        "10": 0.247,
+        "20": 0.2709,
+        "30": 0.2875,
+        "40": 0.3206,
+        "50": 0.3289,
+        "80": 0.3433,
+        "120": 0.3433
+      }
+    },
+    "p_class_A_at_50_vs_neighbours": {
+      "typical live event (median bt, frp)": {
+        "p50": 0.3381,
+        "p30": 0.3041,
+        "p120": 0.3597,
+        "p50_minus_p30": 0.034,
+        "p50_minus_p120": -0.0216
+      },
+      "persistent live event (persistence 6)": {
+        "p50": 0.3289,
+        "p30": 0.2875,
+        "p120": 0.3433,
+        "p50_minus_p30": 0.0414,
+        "p50_minus_p120": -0.0144
+      }
+    },
+    "live_effect_on_LOW_quality_events": {
+      "events": 347,
+      "class_flips_when_using_sentinel": {
+        "metric": "LOW-quality events whose predicted class differs sentinel vs actual generic distance",
+        "numerator": 125,
+        "denominator": 347,
+        "percent": 36.02,
+        "population": "live events with LOW-quality facility context",
+        "date": "2026-09-25 05:13 UTC",
+        "method": "predict_proba >= 0.5, everything else identical"
+      },
+      "mean_p_A_actual_distance": 0.44584175369574425,
+      "mean_p_A_sentinel_50km": 0.23557354868047867,
+      "mean_shift": -0.21026820501526552,
+      "actual_distance_km_median": 0.576
+    },
+    "live_no_context_events_n": 581,
+    "live_no_context_mean_p_A_at_50": 0.28777902946540734,
+    "live_no_context_mean_p_A_at_3km_assumed_edge": 0.4303267575886193,
+    "assessment": "50 km is INSIDE the training range (max 172.0 km) but sparsely populated: 64/1400 rows lie at >= 45 km (51/727 class-B rows, 13/673 class-A rows; the class-A ones are label-noise flips). The forest's response to distance is NOT monotone (see the sweep: P(A) is lower at 10 km than at 50 km for typical events) because it has few samples in the far tail, so 50 km is read as 'somewhat far', not as a clean 'no facility'. That is the intended meaning for a LOW-quality generic record, but it is also an ARTIFICIAL classification effect: the true distance is unknown-but-within-search-radius, and the model receives a specific far value. Recommendation (NOT applied): represent 'no usable facility' as a missing-value indicator (separate binary feature) or train with an explicit no-facility class, instead of a magic distance."
+  },
+  "shift": {
+    "note": "Share of LIVE events whose feature lies outside the range the RF saw in training (synthetic corpus).",
+    "persistence_gt_training_max": {
+      "metric": "live events with persistence > training max",
+      "numerator": 8,
+      "denominator": 1012,
+      "percent": 0.79,
+      "population": "live events",
+      "date": "2026-09-25 05:13 UTC",
+      "method": "training max persistence = 14"
+    },
+    "frp_gt_training_max": {
+      "metric": "live events with FRP > training max",
+      "numerator": 0,
+      "denominator": 1012,
+      "percent": 0.0,
+      "population": "live events",
+      "date": "2026-09-25 05:13 UTC",
+      "method": "training max FRP = 120"
+    },
+    "bt_outside_training": {
+      "metric": "live events with BT outside training range",
+      "numerator": 0,
+      "denominator": 1012,
+      "percent": 0.0,
+      "population": "live events",
+      "date": "2026-09-25 05:13 UTC",
+      "method": "training BT range 290..389 K"
+    },
+    "live_feature_summary": {
+      "bt": {
+        "min": 295.29,
+        "median": 329.435,
+        "max": 367.0
+      },
+      "frp": {
+        "min": 0.16,
+        "median": 2.355,
+        "max": 34.08
+      },
+      "obs": {
+        "min": 1.0,
+        "median": 1.0,
+        "max": 74.0
+      }
+    },
+    "live_predicted_class_counts": {
+      "null": 928,
+      "NATURAL_AGRICULTURAL_FIRE_CANDIDATE": 45,
+      "PERSISTENT_INDUSTRIAL_THERMAL_SOURCE": 39
+    }
+  },
+  "backtest": {
+    "title": "HISTORICAL INCIDENT BACKTEST",
+    "incidents_total": 30,
+    "incident_date_range": [
+      "2019-05-24",
+      "2023-11-01"
+    ],
+    "stored_firms_window": [
+      "2026-09-20 06:20:00.000000",
+      "2026-09-24 21:50:00.000000"
+    ],
+    "raw_parquet": {
+      "path": "data/raw/firms_observations.parquet",
+      "rows": 91,
+      "columns": [
+        "observation_id",
+        "timestamp",
+        "latitude",
+        "longitude",
+        "sensor",
+        "brightness_temperature",
+        "brightness_temperature_11",
+        "frp",
+        "confidence",
+        "day_night",
+        "source",
+        "source_id"
+      ],
+      "time_range": [
+        "2026-09-22T06:18:00",
+        "2026-09-22T09:41:00"
+      ]
+    },
+    "acquisition_mechanism": {
+      "live_api_products": [
+        "VIIRS_SNPP_NRT",
+        "MODIS_NRT",
+        "VIIRS_NOAA21_NRT"
+      ],
+      "archive_product_supported": false,
+      "local_csv_ingest": "ingest_from_local_file() accepts an analyst-supplied FIRMS CSV (no such CSV for 2019-2023 exists in the repo)",
+      "conclusion": "The project ingests NEAR-REAL-TIME data only (day_range <= 5 from today). It has no historical/archive acquisition mechanism."
+    },
+    "incidents_evaluable": {
+      "metric": "incidents with FIRMS coverage for their date",
+      "numerator": 0,
+      "denominator": 30,
+      "percent": 0.0,
+      "population": "30 curated historical incidents (2019-2023)",
+      "date": "2026-09-25 05:13 UTC",
+      "method": "incident date inside the stored FIRMS observation window"
+    },
+    "incidents_not_evaluable_missing_coverage": {
+      "metric": "incidents without FIRMS coverage",
+      "numerator": 30,
+      "denominator": 30,
+      "percent": 100.0,
+      "population": "same",
+      "date": "2026-09-25 05:13 UTC",
+      "method": "same; NOT counted as model failures"
+    },
+    "incidents_with_nearby_firms_observations": {
+      "metric": "incidents with stored observations within 0.1 deg and -3/+4 days",
+      "numerator": 0,
+      "denominator": 30,
+      "percent": 0.0,
+      "population": "same",
+      "date": "2026-09-25 05:13 UTC",
+      "method": "SQL count"
+    },
+    "incidents_surfaced_as_events": null,
+    "capture_rate": null,
+    "top10pct_capture": null,
+    "top25pct_capture": null,
+    "median_rank": null,
+    "why_no_capture_metrics": "No incident has FIRMS coverage, so there is nothing to process, surface or rank. No historical observation was invented and no incident was manually labelled.",
+    "incident_suitability_notes": "Even with archive data, several of the 30 records are not thermal-anomaly targets at VIIRS scale or are not fires (gas leak, memorial anniversary, stubble-burning reference points, chronic thermal sources), and coordinates are approximate (site/city level).",
+    "what_would_be_needed": "A FIRMS archive extract (Standard Processing, e.g. VIIRS SNPP/NOAA-20 for 2019-2023) for each incident date +/- a few days over India, ingested with the existing local-CSV path and run through the existing event logic. Not done here.",
+    "per_incident": [
+      {
+        "incident_id": "IND-001",
+        "date": "2020-05-07",
+        "name": "Vizag LG Polymers gas leak",
+        "facility_type": "Chemical plant",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-002",
+        "date": "2020-12-03",
+        "name": "Bhopal gas tragedy commemoration site",
+        "facility_type": "Chemical plant",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-003",
+        "date": "2021-11-23",
+        "name": "HPCL Visakhapatnam refinery fire",
+        "facility_type": "Refinery",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-004",
+        "date": "2021-10-04",
+        "name": "Sigachi Industries explosion Hyderabad",
+        "facility_type": "Pharmaceutical plant",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-005",
+        "date": "2021-04-08",
+        "name": "IOCL Paradip refinery fire",
+        "facility_type": "Refinery",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-006",
+        "date": "2022-01-08",
+        "name": "BPCL Mumbai refinery fire",
+        "facility_type": "Refinery",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-007",
+        "date": "2021-12-28",
+        "name": "Dhanbad coal mine explosion",
+        "facility_type": "Coal mine",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-008",
+        "date": "2019-05-24",
+        "name": "Surat textile fire",
+        "facility_type": "Textile factory",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-009",
+        "date": "2023-10-15",
+        "name": "Punjab paddy stubble burning cluster",
+        "facility_type": "Agricultural",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-010",
+        "date": "2023-11-01",
+        "name": "Haryana stubble burning cluster",
+        "facility_type": "Agricultural",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-011",
+        "date": "2022-06-29",
+        "name": "ONGC Surat wellhead fire",
+        "facility_type": "Oil wellhead",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-012",
+        "date": "2023-01-15",
+        "name": "Jharia coalfield thermal anomaly",
+        "facility_type": "Coal mine",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-013",
+        "date": "2022-08-10",
+        "name": "Chennai Ennore thermal power flare",
+        "facility_type": "Thermal power plant",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-014",
+        "date": "2020-08-17",
+        "name": "Numaligarh refinery fire",
+        "facility_type": "Refinery",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-015",
+        "date": "2022-03-15",
+        "name": "Jamnagar Reliance refinery flare",
+        "facility_type": "Refinery",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-016",
+        "date": "2020-11-11",
+        "name": "Haldia Petrochemicals fire",
+        "facility_type": "Petrochemical plant",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-017",
+        "date": "2022-04-26",
+        "name": "Vizag Steel Plant fire",
+        "facility_type": "Steel plant",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-018",
+        "date": "2023-02-01",
+        "name": "Chittoor Nellore limestone kiln cluster",
+        "facility_type": "Lime kiln",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-019",
+        "date": "2023-03-10",
+        "name": "Gujarat cement kiln Amreli",
+        "facility_type": "Cement plant",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-020",
+        "date": "2022-07-20",
+        "name": "Talcher thermal power station flare",
+        "facility_type": "Thermal power plant",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-021",
+        "date": "2022-09-05",
+        "name": "ONGC Mumbai High offshore flare",
+        "facility_type": "Offshore oil platform",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-022",
+        "date": "2022-12-01",
+        "name": "Mundra ADANI power plant",
+        "facility_type": "Thermal power plant",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-023",
+        "date": "2023-01-10",
+        "name": "Korba NTPC coal plant",
+        "facility_type": "Thermal power plant",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-024",
+        "date": "2023-02-15",
+        "name": "Vindhyachal NTPC",
+        "facility_type": "Thermal power plant",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-025",
+        "date": "2021-09-22",
+        "name": "Taloja chemical zone fire",
+        "facility_type": "Chemical plant",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-026",
+        "date": "2022-10-14",
+        "name": "IOCL Guwahati refinery fire",
+        "facility_type": "Refinery",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-027",
+        "date": "2023-03-20",
+        "name": "Angul NALCO aluminium smelter",
+        "facility_type": "Aluminium smelter",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-028",
+        "date": "2023-04-01",
+        "name": "Bhilai Steel Plant flares",
+        "facility_type": "Steel plant",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-029",
+        "date": "2023-05-10",
+        "name": "Odisha Rourkela steel plant",
+        "facility_type": "Steel plant",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      },
+      {
+        "incident_id": "IND-030",
+        "date": "2023-06-15",
+        "name": "Durgapur steel plant West Bengal",
+        "facility_type": "Steel plant",
+        "date_inside_stored_firms_window": false,
+        "stored_observations_within_0.1deg_and_-3/+4d": 0
+      }
+    ]
+  },
+  "facility": {
+    "note": "Spatial association only. Says nothing about causation.",
+    "indexed_facilities": 38189,
+    "radius_km": 3.0,
+    "events_tested": 1012,
+    "exact_matches": {
+      "metric": "events whose stored facility association equals the independent recomputation",
+      "numerator": 1012,
+      "denominator": 1012,
+      "percent": 100.0,
+      "population": "all live events",
+      "date": "2026-09-25 05:13 UTC",
+      "method": "brute-force haversine to every indexed facility (numpy), nearest within radius; id equal and distance within 0.02 km; 'none' must also match"
+    },
+    "events_with_context": 431,
+    "mismatches": {
+      "wrong_facility": 0,
+      "wrong_distance": 0,
+      "context_missing": 0,
+      "context_spurious": 0
+    },
+    "mismatch_examples": [],
+    "quality_counts_events": {
+      "MEDIUM": 22,
+      "LOW": 347,
+      "HIGH": 62
+    }
+  },
+  "firms_fidelity": {
+    "note": "Independent csv-module parse of a fresh NASA response, compared to the stored rows. Ingestion fidelity, NOT accuracy of fire detection.",
+    "products": {
+      "VIIRS_NOAA21_NRT": {
+        "rows_from_nasa_now": 634,
+        "exact": 634,
+        "field_mismatch": 0,
+        "not_in_database": 0
+      },
+      "VIIRS_NOAA20_NRT": {
+        "rows_from_nasa_now": 712,
+        "exact": 712,
+        "field_mismatch": 0,
+        "not_in_database": 0
+      }
+    },
+    "observations_checked": 1346,
+    "exact_matches": {
+      "metric": "NASA rows reproduced exactly in the database (lat, lon, time, satellite, FRP, BT4, BT5, confidence, day/night, scan, track)",
+      "numerator": 1346,
+      "denominator": 1346,
+      "percent": 100.0,
+      "population": "rows NASA returns right now for the configured products/window",
+      "date": "2026-09-25 05:13 UTC",
+      "method": "csv-module parse vs stored row"
+    },
+    "field_mismatch_counts": {},
+    "not_in_database": 0,
+    "extra_note": "'not_in_database' rows are detections NASA published after the last refresh; they are not ingestion errors."
+  },
+  "tests": {
+    "full_backend_suite": {
+      "total": 275,
+      "passed": 275,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 0
+    },
+    "event_and_pipeline_test_files": {
+      "tests": 101,
+      "passed": 101,
+      "failed": 0
+    },
+    "by_behaviour": {
+      "growth keeps the same event ID": {
+        "tests": 4,
+        "passed": 4,
+        "failed": 0,
+        "names": [
+          "test_assign_stable_ids_growth_split_and_merge_unit",
+          "test_split_is_audited_and_keeps_the_original_identity_and_operator_state",
+          "test_new_compatible_observation_extends_the_event_and_keeps_its_identity",
+          "test_merging_events_keeps_the_older_identity_records_the_reason_and_keeps_human_decisions"
+        ]
+      },
+      "unrelated activity gets a separate ID": {
+        "tests": 5,
+        "passed": 5,
+        "failed": 0,
+        "names": [
+          "test_events_are_traceable_to_their_nasa_observations_and_keep_confidence_separate_from_risk",
+          "test_unrelated_observation_creates_a_new_event_and_disturbs_nothing",
+          "test_live_summary_keeps_nasa_confidence_and_orbiflare_severity_separate_and_pure",
+          "test_spatially_distant_observations_form_separate_events",
+          "test_temporally_distant_observations_form_separate_events"
+        ]
+      },
+      "refresh does not duplicate (idempotent)": {
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "names": [
+          "test_second_refresh_does_not_duplicate"
+        ]
+      },
+      "merge is audited": {
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "names": [
+          "test_assign_stable_ids_growth_split_and_merge_unit"
+        ]
+      },
+      "split is audited": {
+        "tests": 2,
+        "passed": 2,
+        "failed": 0,
+        "names": [
+          "test_assign_stable_ids_growth_split_and_merge_unit",
+          "test_split_is_audited_and_keeps_the_original_identity_and_operator_state"
+        ]
+      },
+      "operator state preserved": {
+        "tests": 6,
+        "passed": 6,
+        "failed": 0,
+        "names": [
+          "test_full_valid_lifecycle_path",
+          "test_operator_state_survives_a_refresh",
+          "test_split_is_audited_and_keeps_the_original_identity_and_operator_state",
+          "test_operator_actions_before_the_event_evolves",
+          "test_operator_state_and_audit_history_survive_the_update",
+          "test_lifecycle_and_unknown_id_status_codes"
+        ]
+      },
+      "trajectory consistent/preserved": {
+        "tests": 4,
+        "passed": 4,
+        "failed": 0,
+        "names": [
+          "test_trajectory_and_replay_agree_with_the_stored_risk_for_a_low_quality_event",
+          "test_trajectory_uses_the_same_facility_quality_policy_as_the_stored_risk",
+          "test_compute_trajectory_never_predicts_the_future",
+          "test_compute_trajectory_matches_point_count_to_observations"
+        ]
+      }
+    },
+    "failed_tests": []
+  },
+  "risk": {
+    "population": "live (non-demo) events in the primary database",
+    "severity_matches_thresholds": {
+      "metric": "events whose severity equals the threshold mapping of their score (35/60/80)",
+      "numerator": 1012,
+      "denominator": 1012,
+      "percent": 100.0,
+      "population": "live events",
+      "date": "2026-09-25 05:13 UTC",
+      "method": "recomputed from config thresholds"
+    },
+    "stored_risk_equals_event_risk": {
+      "metric": "risk_assessments.risk_score == events.risk_score",
+      "numerator": 1012,
+      "denominator": 1012,
+      "percent": 100.0,
+      "population": "live events",
+      "date": "2026-09-25 05:13 UTC",
+      "method": "SQL join"
+    },
+    "risk_in_0_100": {
+      "metric": "risk score within [0,100]",
+      "numerator": 1012,
+      "denominator": 1012,
+      "percent": 100.0,
+      "population": "live events",
+      "date": "2026-09-25 05:13 UTC",
+      "method": "range check"
+    },
+    "trajectory_final_point_equals_event_risk": {
+      "metric": "events whose last trajectory point equals the stored risk (+/-0.06)",
+      "numerator": 1012,
+      "denominator": 1012,
+      "percent": 100.0,
+      "population": "live events with trajectory points",
+      "date": "2026-09-25 05:13 UTC",
+      "method": "SQL"
+    },
+    "trajectory_timestamps_monotone": {
+      "metric": "events with non-decreasing trajectory timestamps",
+      "numerator": 1012,
+      "denominator": 1012,
+      "percent": 100.0,
+      "population": "live events with trajectory points",
+      "date": "2026-09-25 05:13 UTC",
+      "method": "SQL"
+    },
+    "limited_baseline_cap": {
+      "events": 98,
+      "cap_pts": 14.0,
+      "max_observed": 9.34,
+      "violations": 0
+    },
+    "established_baseline_events": 21,
+    "insufficient_or_no_baseline_events": 893,
+    "insufficient_nonzero_deviation_violations": 0,
+    "low_quality_facility_with_risk_contribution_violations": 0,
+    "thresholds": {
+      "medium": 35.0,
+      "high": 60.0,
+      "critical": 80.0,
+      "changed_in_this_pass": false
+    },
+    "trajectory_final_point_note": "The stored event risk is computed by calculate_risk_stage() WITHOUT recent_frp (intensity uses the event's peak FRP); the trajectory's last point is computed WITH recent_frp = the latest observation's FRP. The two therefore differ slightly whenever the latest observation's FRP is not the peak. Every mismatch found has last-obs FRP != peak FRP; none has last == peak. Reported, NOT changed (evaluation-only pass)."
+  },
+  "live": {
+    "note": "Operational statistics. NOT accuracy.",
+    "firms_observations": 1873,
+    "by_satellite": {
+      "N20": 956,
+      "N21": 917
+    },
+    "acquisition_range_utc": [
+      "2026-09-20 06:20:00.000000",
+      "2026-09-24 21:50:00.000000"
+    ],
+    "nasa_confidence": {
+      "h": 10,
+      "l": 121,
+      "n": 1742
+    },
+    "synthetic_observations": 0,
+    "synthetic_events": 0,
+    "events": 1012,
+    "severity": {
+      "LOW": 1007,
+      "MEDIUM": 5
+    },
+    "trajectory": {
+      "INSUFFICIENT_DATA": 709,
+      "STABLE": 230,
+      "ESCALATING": 14,
+      "INCREASING": 57,
+      "DECREASING": 2
+    },
+    "escalating": 14,
+    "persistent_ge6_obs": 41,
+    "status": {
+      "DETECTED": 1012
+    },
+    "max_risk": 44.0,
+    "facility_context_events": 431,
+    "context_quality": {
+      "MEDIUM": 22,
+      "LOW": 347,
+      "HIGH": 62
+    },
+    "events_no_facility_context": 581,
+    "referenced_facilities": 282,
+    "facility_twins": {
+      "ESTABLISHED": 4,
+      "INSUFFICIENT": 252,
+      "LIMITED": 26
+    },
+    "event_baselines_from_risk": {
+      "INSUFFICIENT": 893,
+      "LIMITED": 98,
+      "ESTABLISHED": 21
+    },
+    "refresh": {
+      "first": {
+        "status": "OK",
+        "observations_received": 1346,
+        "new_observations": 0,
+        "updated_observations": 0,
+        "events_total": 1012,
+        "events_created": 0,
+        "events_updated": 0,
+        "events_unchanged": 1012,
+        "events_merged": 0,
+        "events_split": 0,
+        "seconds": 12.1
+      },
+      "immediately_after": {
+        "status": "OK",
+        "observations_received": 1346,
+        "new_observations": 0,
+        "updated_observations": 0,
+        "events_total": 1012,
+        "events_created": 0,
+        "events_updated": 0,
+        "events_unchanged": 1012,
+        "events_merged": 0,
+        "events_split": 0,
+        "seconds": 11.6
+      },
+      "idempotent": true
+    }
+  },
+  "claims": {
+    "files_scanned": 155,
+    "patterns": [
+      "accuracy percentage",
+      "fire probability",
+      "confirmed fire",
+      "causation from proximity",
+      "industrial fire detected",
+      "AI predicts fire",
+      "AI detection claim",
+      "geographic holdout",
+      "bare accuracy KPI",
+      "independent confirmation"
+    ],
+    "hits_total": 62,
+    "hits_safe_denial": 61,
+    "hits_review": [
+      {
+        "file": "README.md",
+        "line": 3,
+        "pattern": "AI detection claim",
+        "text": "**SIH26162** -- AI-Based Detection and Classification of Industrial Fires and Persistent Thermal Sources Using NASA FIRMS, OSM & Satellite Data.",
+        "context": "REVIEW",
+        "recommended": "Official SIH26162 problem-statement title; acceptable only when quoted as the title. Describe the implemented system precisely (analyst console prioritising FIRMS thermal observations) in the surrounding text."
+      }
+    ],
+    "safe_denials_sample": [
+      {
+        "file": "frontend/src/components/InvestigationHeader.tsx",
+        "line": 38,
+        "pattern": "confirmed fire",
+        "text": "<p className=\"mt-2 text-[11px] text-base-400\">Detections are observations, not confirmed fires. OrbiFlare risk is an operational priority for analysts, separate from NASA FIRMS detection confidence.</p>",
+        "context": "DENIAL/NEGATED (safe)",
+        "recommended": "FIRMS detections are 'thermal observations'; only a denial ('not a confirmed fire') is acceptable."
+      },
+      {
+        "file": "frontend/src/components/MapPanel.tsx",
+        "line": 89,
+        "pattern": "confirmed fire",
+        "text": "<div className=\"mt-1 max-w-[330px] border-t border-base-700 pt-1 leading-snug text-base-400\">Severity is OrbiFlare's event risk, not FIRMS detection confidence. A FIRMS detection is a thermal observation, not a confirmed",
+        "context": "DENIAL/NEGATED (safe)",
+        "recommended": "FIRMS detections are 'thermal observations'; only a denial ('not a confirmed fire') is acceptable."
+      },
+      {
+        "file": "frontend/src/components/MapPanel.tsx",
+        "line": 196,
+        "pattern": "confirmed fire",
+        "text": "`<div style=\"font-size:11px\"><b>${demo ? \"Demo observation\" : \"FIRMS thermal observation\"}</b><br/>${esc(p.sensor)} &middot; ${esc(String(p.ts).replace(\"T\", \" \"))}${demo ? \"\" : \" UTC\"}<br/>FRP ${esc(p.frp ?? \"--\")} MW &m",
+        "context": "DENIAL/NEGATED (safe)",
+        "recommended": "FIRMS detections are 'thermal observations'; only a denial ('not a confirmed fire') is acceptable."
+      },
+      {
+        "file": "frontend/src/components/NavBar.tsx",
+        "line": 79,
+        "pattern": "confirmed fire",
+        "text": "<dd className=\"pt-1 text-[10px] leading-snug text-base-400\">Thermal detections are observations, not confirmed fires.</dd>",
+        "context": "DENIAL/NEGATED (safe)",
+        "recommended": "FIRMS detections are 'thermal observations'; only a denial ('not a confirmed fire') is acceptable."
+      },
+      {
+        "file": "frontend/src/components/RiskExplanation.tsx",
+        "line": 26,
+        "pattern": "fire probability",
+        "text": "<p className=\"text-[11px] text-base-500\">Risk is operational priority for analyst review. It is not fire probability, not a forecast, and not a confirmed fire.</p>",
+        "context": "DENIAL/NEGATED (safe)",
+        "recommended": "Use 'operational priority score' / 'thermal-source class probability (proxy-labelled)'."
+      },
+      {
+        "file": "frontend/src/components/RiskExplanation.tsx",
+        "line": 26,
+        "pattern": "confirmed fire",
+        "text": "<p className=\"text-[11px] text-base-500\">Risk is operational priority for analyst review. It is not fire probability, not a forecast, and not a confirmed fire.</p>",
+        "context": "DENIAL/NEGATED (safe)",
+        "recommended": "FIRMS detections are 'thermal observations'; only a denial ('not a confirmed fire') is acceptable."
+      },
+      {
+        "file": "frontend/src/lib/assessment.ts",
+        "line": 43,
+        "pattern": "causation from proximity",
+        "text": "export const ATTRIBUTION_NOTE = \"Facility context is spatial association, not source attribution. Nearby does not mean caused by.\";",
+        "context": "DENIAL/NEGATED (safe)",
+        "recommended": "Use 'spatially associated with' / 'near'."
+      },
+      {
+        "file": "frontend/src/lib/assessment.ts",
+        "line": 57,
+        "pattern": "causation from proximity",
+        "text": "export const NEARBY_NOTE = \"Nearby does not mean caused by. Facility distance is spatial association only.\";",
+        "context": "DENIAL/NEGATED (safe)",
+        "recommended": "Use 'spatially associated with' / 'near'."
+      },
+      {
+        "file": "frontend/src/lib/assessment.ts",
+        "line": 59,
+        "pattern": "independent confirmation",
+        "text": "\"ML evidence uses proxy-labelled development data and partially overlaps with facility-context features. It should not be interpreted as an independent confirmation.\";",
+        "context": "DENIAL/NEGATED (safe)",
+        "recommended": "Only acceptable when denying independence."
+      },
+      {
+        "file": "frontend/src/lib/assessment.ts",
+        "line": 98,
+        "pattern": "confirmed fire",
+        "text": "out.push(\"No independent confirmation: a FIRMS detection is a thermal observation, not a confirmed fire.\");",
+        "context": "DENIAL/NEGATED (safe)",
+        "recommended": "FIRMS detections are 'thermal observations'; only a denial ('not a confirmed fire') is acceptable."
+      },
+      {
+        "file": "frontend/src/lib/assessment.ts",
+        "line": 98,
+        "pattern": "independent confirmation",
+        "text": "out.push(\"No independent confirmation: a FIRMS detection is a thermal observation, not a confirmed fire.\");",
+        "context": "DENIAL/NEGATED (safe)",
+        "recommended": "Only acceptable when denying independence."
+      },
+      {
+        "file": "frontend/src/app/command-center/page.tsx",
+        "line": 64,
+        "pattern": "confirmed fire",
+        "text": "<PageHeader title=\"Command Center\" sub=\"Evolving thermal events prioritised for analyst investigation. Detections are observations, not confirmed fires.\" action={<FirmsRefreshControl firms={health?.firms ?? null} />} />",
+        "context": "DENIAL/NEGATED (safe)",
+        "recommended": "FIRMS detections are 'thermal observations'; only a denial ('not a confirmed fire') is acceptable."
+      },
+      {
+        "file": "frontend/src/app/command-center/page.tsx",
+        "line": 83,
+        "pattern": "fire probability",
+        "text": "sub=\"Top by risk score (operational priority, not fire probability)\"",
+        "context": "DENIAL/NEGATED (safe)",
+        "recommended": "Use 'operational priority score' / 'thermal-source class probability (proxy-labelled)'."
+      },
+      {
+        "file": "frontend/src/app/gis/page.tsx",
+        "line": 82,
+        "pattern": "confirmed fire",
+        "text": "<p className=\"mt-3 text-[10px] leading-snug text-base-400\">A FIRMS observation is a satellite thermal detection, not a confirmed fire.</p>",
+        "context": "DENIAL/NEGATED (safe)",
+        "recommended": "FIRMS detections are 'thermal observations'; only a denial ('not a confirmed fire') is acceptable."
+      },
+      {
+        "file": "frontend/src/app/limitations/page.tsx",
+        "line": 76,
+        "pattern": "confirmed fire",
+        "text": "<li><span className=\"text-sev-critical\">\u2717</span> A thermal detection is automatically a confirmed fire.</li>",
+        "context": "DENIAL/NEGATED (safe)",
+        "recommended": "FIRMS detections are 'thermal observations'; only a denial ('not a confirmed fire') is acceptable."
+      }
+    ]
+  },
+  "visual": "See reports/orbiflare_final_hardening_report.md (browser screenshots of Model, Investigation x2, Command Center, Events were captured in this pass; earlier pass covered the remaining pages).",
+  "ablation_interpretation": "Removing facility distance alone changes macro-F1 by -0.073; removing both label-rule inputs (distance and persistence) changes it by -0.114 (macro-F1 0.697). Performance is carried by the same signals used to construct the proxy labels; the remaining features (BT, FRP, month, day/night) are generated from the same latent 'industrial world' flag, so they are correlated with the label for synthetic reasons, not because the physics was learned.",
+  "limitations": [
+    "No verified ground truth: the RF has never been evaluated on a real, independently labelled industrial-incident set.",
+    "The RF is trained on a synthetic corpus, not on real FIRMS observations; its 'geographic holdout' is a random row split.",
+    "Proxy labels are built from facility proximity and persistence, which are also model features (circularity); metrics measure recovery of that rule.",
+    "The 50 km sentinel is an unlearned-artefact risk for LOW-quality/no-context events (see E).",
+    "Live events lie partly outside the training range (persistence, FRP); see the distribution-shift block in I.",
+    "Historical incident backtest: 0/30 evaluable; the project has no archive acquisition path.",
+    "Facility association is validated against the same dataset, so it validates the computation, not the completeness/accuracy of OSM/GPPD (most records are generic land-use, LOW quality).",
+    "Baselines are limited by ~5 days of stored NRT history; most facilities are limited or insufficient.",
+    "MAP_KEY rotation is still required externally."
+  ]
+}

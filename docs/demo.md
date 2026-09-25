@@ -6,9 +6,10 @@ Prerequisite: backend running on :8000 (auto-seeds the DEMO/SYNTHETIC scenario o
 
 **ORBIFLARE DEMO -- ESCALATING REFINERY THERMAL EVENT** (clearly labelled DEMO/SYNTHETIC throughout the UI):
 
-- **Synthetic Refinery Alpha**: ~24 months of routine flaring history (FRP 20-40 MW, 1-2h, 2-4 observations, tight "Zone A" footprint, mostly 21:00-02:00 IST) -- then a current event that escalates to 118 MW peak, 5.5h duration, 11 observations, displaced ~1.7km into a new "Zone C", extending into daytime hours. This is the flagship walkthrough.
-- **Synthetic Steel Plant Beta**: matches its own baseline closely -- demonstrates a LOW-risk, non-anomalous facility.
-- **Synthetic Chemical Plant Gamma**: only one historical event ever recorded -- demonstrates the INSUFFICIENT baseline state honestly, with no fabricated deviation.
+- **Demo Refinery Alpha**: ~24 months of routine flaring history (FRP 20-40 MW, 1-2h, 2-4 observations, tight "Zone A" footprint, mostly 21:00-02:00 IST) -- then a current event that escalates to 118 MW peak, 5.5h duration, 11 observations, displaced ~1.7km into a new "Zone C", extending into daytime hours. This is the flagship walkthrough.
+- **Demo Steel Plant Beta**: matches its own baseline closely -- demonstrates a LOW-risk, non-anomalous facility.
+- **Demo Chemical Plant Gamma**: only one historical event ever recorded -- demonstrates the INSUFFICIENT baseline state honestly, with no fabricated deviation.
+- **Demo Mining Site Delta**: an established baseline, but the current event's facility distance and FRP are deliberately placed near the ML classifier's real training decision boundary -- the Random Forest genuinely returns a low-confidence, near-50/50 prediction, and the Evidence Stack contains both supporting and contradicting items. The Investigation page shows an explicit "Ambiguous -- requires analyst validation" banner rather than forcing a verdict. This is the single most important scenario for demonstrating that the system knows when it does not know.
 - An unassociated rural thermal signature with no nearby facility -- demonstrates the natural/agricultural-candidate path.
 
 ## Walkthrough
@@ -21,10 +22,12 @@ Prerequisite: backend running on :8000 (auto-seeds the DEMO/SYNTHETIC scenario o
 6. **Alternative Explanations** -- "Abnormal industrial thermal event" as the primary hypothesis, with genuine alternatives and unknowns listed, not a single forced verdict.
 7. **Risk Trajectory** -- the actual computed sequence (e.g. 29 -> 39 -> ... -> 74), labelled ESCALATING, with the exact required phrasing ("observed risk has increased consistently") -- never a future-fire prediction.
 8. **Event Replay** (`/replay/{id}`) -- click Play Event and watch the real observation history unfold chronologically, with FRP/persistence/deviation/risk updating frame by frame.
-9. **Thermal Twin page** (`/thermal-twins/{facility_id}`) -- the full historical behaviour profile (hour-of-day chart, distributions) for Alpha, then compare against Gamma's INSUFFICIENT baseline state.
+9. **Thermal Twin page** (`/thermal-twins/{facility_id}`) -- the full historical behaviour profile (location map, hour-of-day chart, distributions) for Alpha, then compare against Gamma's INSUFFICIENT baseline state.
 10. Open the **Agent** (`/agent`) and ask: *"Why is this event high priority?"* (or click the suggested chip) -- the agent answers entirely from the real investigation data it just retrieved, with an "Open investigation" link back.
 11. Back on the Investigation page, use **Operator Action** to move the event DETECTED -> VALIDATING -- an explicit, audited human action.
-12. Close with **Limitations** (`/limitations`) and the **Model** page (`/model`) to show the system is upfront about proxy labels, baseline availability, satellite resolution, and everything else it does *not* claim.
+12. Open **Demo Mining Site Delta**'s current event -- point out the "Ambiguous -- requires analyst validation" banner, the near-50/50 ML split, and the mixed supporting/contradicting Evidence Stack. This is the moment to say explicitly: "the system is telling you it doesn't know, instead of guessing."
+13. Open **Analytics** (`/analytics`) and scroll to "Data Quality & Coordinate Validation" -- every ingested observation is accounted for (in-region vs. out-of-region counts, ingestion batch history), never silently dropped or moved.
+14. Close with **Limitations** (`/limitations`) and the **Model** page (`/model`) to show the system is upfront about proxy labels, baseline availability, satellite resolution, and everything else it does *not* claim.
 
 ## What to say if asked "what's different about this"
 

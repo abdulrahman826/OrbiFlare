@@ -3,8 +3,8 @@
 import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { ChartCard } from "@/components/ChartCard";
 
-const SEVERITY_COLORS: Record<string, string> = { LOW: "#4a9a6a", MEDIUM: "#c9a227", HIGH: "#d97b3f", CRITICAL: "#d1453f" };
-const TOOLTIP_STYLE = { background: "#12151b", border: "1px solid #2a3038", fontSize: 11 };
+const SEVERITY_COLORS: Record<string, string> = { LOW: "#3F7A52", MEDIUM: "#B8860B", HIGH: "#B4530F", CRITICAL: "#A82A24" };
+const TOOLTIP_STYLE = { background: "#FBF9F3", border: "1px solid #C2BAA5", fontSize: 11 };
 
 function toChartData(obj: Record<string, number>) {
   return Object.entries(obj).map(([name, value]) => ({ name, value }));
@@ -15,8 +15,8 @@ function toChartData(obj: Record<string, number>) {
 type ColorMode = "default" | "classification";
 
 function colorForMode(mode: ColorMode | undefined, key: string): string {
-  if (mode === "classification") return key.startsWith("PERSISTENT") ? "#3fd0e0" : "#c9a227";
-  return "#3fd0e0";
+  if (mode === "classification") return key.startsWith("PERSISTENT") ? "#3F5B4A" : "#96690A";
+  return "#3F5B4A";
 }
 
 export function BarByKey({ title, data, colorMode, note }: { title: string; data: Record<string, number>; colorMode?: ColorMode; note?: string }) {
@@ -25,12 +25,12 @@ export function BarByKey({ title, data, colorMode, note }: { title: string; data
     <ChartCard title={title} note={note}>
       <div className="h-56 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData} margin={{ left: -20, right: 10, top: 8, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1f242c" vertical={false} />
-            <XAxis dataKey="name" tick={{ fontSize: 10, fill: "#7d848c" }} axisLine={{ stroke: "#2a3038" }} tickLine={false} />
-            <YAxis tick={{ fontSize: 10, fill: "#7d848c" }} axisLine={false} tickLine={false} width={30} />
+          <BarChart data={chartData} margin={{ left: 0, right: 10, top: 8, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#DAD3C2" vertical={false} />
+            <XAxis dataKey="name" interval={0} tickFormatter={(v: string) => (v.length > 14 ? `${v.slice(0, 13)}…` : v)} tick={{ fontSize: 9, fill: "#6C7065" }} axisLine={{ stroke: "#C2BAA5" }} tickLine={false} />
+            <YAxis tick={{ fontSize: 10, fill: "#6C7065" }} axisLine={false} tickLine={false} width={30} />
             <Tooltip contentStyle={TOOLTIP_STYLE} />
-            <Bar dataKey="value" radius={[3, 3, 0, 0]}>
+            <Bar dataKey="value" radius={[3, 3, 0, 0]} isAnimationActive={false}>
               {chartData.map((d, i) => (
                 <Cell key={i} fill={colorForMode(colorMode, d.name)} />
               ))}
@@ -49,9 +49,9 @@ export function SeverityPie({ data }: { data: Record<string, number> }) {
       <div className="h-56 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
-            <Pie data={chartData} dataKey="value" nameKey="name" innerRadius={45} outerRadius={80} paddingAngle={2}>
+            <Pie data={chartData} dataKey="value" nameKey="name" innerRadius={45} outerRadius={80} paddingAngle={2} isAnimationActive={false}>
               {chartData.map((d, i) => (
-                <Cell key={i} fill={SEVERITY_COLORS[d.name] || "#5a6169"} />
+                <Cell key={i} fill={SEVERITY_COLORS[d.name] || "#A39C88"} />
               ))}
             </Pie>
             <Tooltip contentStyle={TOOLTIP_STYLE} />
@@ -72,12 +72,12 @@ export function DeviationHistogram({ values }: { values: number[] }) {
     <ChartCard title="Deviation Score Distribution" note="Composite behavioural deviation (0-100) across all events">
       <div className="h-56 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={counts} margin={{ left: -20, right: 10, top: 8, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1f242c" vertical={false} />
-            <XAxis dataKey="name" tick={{ fontSize: 10, fill: "#7d848c" }} axisLine={{ stroke: "#2a3038" }} tickLine={false} />
-            <YAxis tick={{ fontSize: 10, fill: "#7d848c" }} axisLine={false} tickLine={false} width={30} />
+          <BarChart data={counts} margin={{ left: 0, right: 10, top: 8, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#DAD3C2" vertical={false} />
+            <XAxis dataKey="name" interval={0} tick={{ fontSize: 9, fill: "#6C7065" }} axisLine={{ stroke: "#C2BAA5" }} tickLine={false} />
+            <YAxis tick={{ fontSize: 10, fill: "#6C7065" }} axisLine={false} tickLine={false} width={30} />
             <Tooltip contentStyle={TOOLTIP_STYLE} />
-            <Bar dataKey="value" fill="#3fd0e0" radius={[3, 3, 0, 0]} />
+            <Bar dataKey="value" fill="#3F5B4A" radius={[3, 3, 0, 0]} isAnimationActive={false} />
           </BarChart>
         </ResponsiveContainer>
       </div>

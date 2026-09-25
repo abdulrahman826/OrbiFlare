@@ -11,9 +11,9 @@ from app.model.schemas import EventReplay, ReplayFrame, ThermalObservation, Ther
 
 def build_replay(
     event_id: str, observations: list[ThermalObservation], twin: ThermalTwin | None,
-    facility_id: str | None, facility_distance_km: float | None,
+    facility_id: str | None, facility_distance_km: float | None, facility_quality: str | None = None,
 ) -> EventReplay:
-    steps = evolve_event(observations, twin, facility_id, facility_distance_km)
+    steps = evolve_event(observations, twin, facility_id, facility_distance_km, facility_quality)
     frames = [
         ReplayFrame(
             step=i + 1, observation=s.observation, cumulative_observation_count=s.partial_event.observation_count,

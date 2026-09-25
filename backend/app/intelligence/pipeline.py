@@ -102,10 +102,11 @@ def calculate_deviations_stage(events: list[ThermalEvent], twins: dict, obs_by_e
 
 def classify_stage(events: list[ThermalEvent]):
     predictions = {}
-    for e in events:
-        pred = classification.classify_event(e)
+    for e, pred in zip(events, classification.classify_events(events)):
         predictions[e.event_id] = pred
-        e.classification = pred.predicted_class
+        # A class label is only assigned when the model had facility information. A facility-blind prediction (no usable facility context)
+        # is kept as evidence (probabilities, low-confidence flag) but is not turned into a class label on the event.
+        e.classification = pred.predicted_class if pred.model_variant == "full" else None
         e.ml_p_industrial = pred.p_persistent_industrial
         e.ml_p_natural = pred.p_natural_candidate
         e.ml_anomaly_low_confidence = pred.low_confidence
@@ -120,10 +121,12 @@ def build_evidence_stage(events: list[ThermalEvent], deviations: dict, predictio
     return stacks
 
 
-def calculate_risk_stage(events: list[ThermalEvent], deviations: dict, predictions: dict):
+def calculate_risk_stage(events: list[ThermalEvent], deviations: dict, predictions: dict, obs_by_event: dict | None = None):
+    """Event risk == the last point of the event's risk trajectory (same definition, see risk.latest_observation_frp)."""
     risks = {}
     for e in events:
-        r = risk_mod.compute_risk(e, deviations.get(e.event_id), predictions.get(e.event_id), facility_present=e.facility_id is not None)
+        recent = risk_mod.latest_observation_frp((obs_by_event or {}).get(e.event_id))
+        r = risk_mod.compute_risk(e, deviations.get(e.event_id), predictions.get(e.event_id), facility_present=e.facility_id is not None, recent_frp=recent)
         risks[e.event_id] = r
         e.risk_score = r.risk_score
         e.severity = r.severity
@@ -132,9 +135,11 @@ def calculate_risk_stage(events: list[ThermalEvent], deviations: dict, predictio
 
 def calculate_trajectory_stage(events: list[ThermalEvent], twins: dict, obs_by_event: dict):
     trajectories = {}
+    from app.intelligence.trajectory import prefetch_ml
+    prefetch_ml([(obs_by_event.get(e.event_id, []), e.facility_id, e.facility_distance_km, e.facility_context_quality) for e in events])
     for e in events:
         twin = twins.get(e.facility_id) if e.facility_id else None
-        traj, _ = compute_trajectory(obs_by_event.get(e.event_id, []), twin, e.facility_id, e.facility_distance_km, e.event_id)
+        traj, _ = compute_trajectory(obs_by_event.get(e.event_id, []), twin, e.facility_id, e.facility_distance_km, e.event_id, e.facility_context_quality)
         trajectories[e.event_id] = traj
         e.trajectory_direction = traj.direction
     return trajectories
@@ -176,7 +181,7 @@ def run_full_pipeline(db: Session, mode: str = "demo") -> dict:
     predictions = classify_stage(events)
     facilities_by_id = {f.facility_id: f for f in facilities}
     evidence_stacks = build_evidence_stage(events, deviations, predictions, facilities_by_id)
-    risks = calculate_risk_stage(events, deviations, predictions)
+    risks = calculate_risk_stage(events, deviations, predictions, obs_by_event)
     trajectories = calculate_trajectory_stage(events, twins, obs_by_event)
 
     persist(db, facilities, events, observations, twins, deviations, evidence_stacks, risks, trajectories)

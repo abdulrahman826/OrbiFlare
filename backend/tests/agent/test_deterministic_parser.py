@@ -70,3 +70,12 @@ def test_facility_statistics_intent():
     p = parse("give me statistics for FAC-REF-ALPHA")
     assert p.intent == "get_facility_statistics"
     assert p.facility_ids == ["FAC-REF-ALPHA"]
+
+
+def test_insufficient_baseline_intent_is_routed_to_dedicated_read_only_tool():
+    from app.agent.deterministic import parse
+    from app.agent.tools import TOOL_REGISTRY
+
+    for msg in ("which events have insufficient baseline?", "Show events with insufficient baseline."):
+        assert parse(msg).intent == "list_insufficient_baseline_events"
+    assert "list_insufficient_baseline_events" in TOOL_REGISTRY

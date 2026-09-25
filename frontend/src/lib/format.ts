@@ -40,7 +40,7 @@ export const TRAJECTORY_COLORS: Record<TrajectoryDirection, string> = {
   STABLE: "text-base-200 border-base-500/50 bg-base-700/40",
   INCREASING: "text-sev-medium border-sev-medium/40 bg-sev-medium/10",
   ESCALATING: "text-sev-critical border-sev-critical/40 bg-sev-critical/10",
-  DECREASING: "text-accent border-accent/40 bg-accent/10",
+  DECREASING: "text-info border-info/40 bg-info/10",
   INSUFFICIENT_DATA: "text-base-300 border-base-500/40 bg-base-700/30",
 };
 
@@ -55,8 +55,15 @@ export function facilityTypeLabel(t: string): string {
 }
 
 export function classificationLabel(c: string | null): string {
-  if (!c) return "Unclassified";
+  if (!c) return "No class (no usable facility)";
   if (c === "PERSISTENT_INDUSTRIAL_THERMAL_SOURCE") return "Persistent Industrial Source";
   if (c === "NATURAL_AGRICULTURAL_FIRE_CANDIDATE") return "Natural/Agricultural Candidate";
   return c;
 }
+
+export const DATA_MODE_UI: Record<string, { short: string; top: string; tone: string; sensor: string }> = {
+  LIVE_FIRMS: { short: "LIVE / FIRMS", top: "LIVE FIRMS", tone: "border-sev-low/50 bg-sev-low/10 text-sev-low", sensor: "VIIRS 375m / MODIS 1km" },
+  DEMO: { short: "DEMO", top: "LOCAL / DEMO", tone: "border-base-100 bg-base-100 text-base-850", sensor: "VIIRS 375m (demo)" },
+  MIXED: { short: "MIXED DATA", top: "MIXED DATA", tone: "border-sev-medium/50 bg-sev-medium/10 text-sev-medium", sensor: "VIIRS/MODIS + demo data" },
+  EMPTY: { short: "NO DATA", top: "NO DATA INGESTED", tone: "border-base-500 bg-base-800 text-base-300", sensor: "no observations" },
+};

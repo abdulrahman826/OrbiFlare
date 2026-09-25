@@ -9,6 +9,7 @@ independent confirmations would double-count the same signal).
 from __future__ import annotations
 
 from app.model.schemas import (
+    BaselineConfidence,
     Deviation,
     DeviationStatus,
     EvidenceCategory,
@@ -39,16 +40,22 @@ _STANDING_UNCERTAINTIES = [
 ]
 
 
-def _dim_to_evidence(name: str, category: EvidenceCategory, dev, source: str) -> EvidenceItem | None:
+def _dim_to_evidence(name: str, category: EvidenceCategory, dev, source: str, baseline: BaselineConfidence | None = None) -> EvidenceItem | None:
     if dev.status == DeviationStatus.INSUFFICIENT_BASELINE:
         return EvidenceItem(category=category, name=f"{name}_deviation", source=source,
                              direction=EvidenceDirection.UNAVAILABLE, explanation=dev.explanation)
     strength = EvidenceStrength.STRONG if dev.is_significant else (EvidenceStrength.MODERATE if dev.is_notable else EvidenceStrength.WEAK)
     direction = EvidenceDirection.SUPPORTING if (dev.is_notable or dev.is_significant) else EvidenceDirection.CONTRADICTING
+    explanation = dev.explanation
+    if baseline == BaselineConfidence.LIMITED:
+        # A comparison with LIMITED history is cautious by construction: its strength is lowered one step and it says so.
+        strength = {EvidenceStrength.STRONG: EvidenceStrength.MODERATE, EvidenceStrength.MODERATE: EvidenceStrength.WEAK}.get(strength, strength)
+        if dev.is_notable or dev.is_significant:
+            explanation += " (Compared with a LIMITED baseline: insufficient history for strong behavioural inference.)"
     return EvidenceItem(
         category=category, name=f"{name}_deviation",
         observed_value=str(dev.observed_value), expected_value=str(dev.expected_median),
-        source=source, direction=direction, strength=strength, explanation=dev.explanation,
+        source=source, direction=direction, strength=strength, explanation=explanation,
     )
 
 
@@ -71,7 +78,7 @@ def build_evidence_stack(
             ("recurrence", EvidenceCategory.BEHAVIOURAL, deviation.recurrence, "Behaviour Deviation Engine: recurrence"),
         ]
         for name, category, dev, source in dims:
-            item = _dim_to_evidence(name, category, dev, source)
+            item = _dim_to_evidence(name, category, dev, source, deviation.baseline_confidence)
             if item is None:
                 continue
             if item.direction == EvidenceDirection.SUPPORTING:
@@ -88,19 +95,23 @@ def build_evidence_stack(
         ))
 
     if ml is not None:
-        strong_industrial = ml.predicted_class == MLClass.PERSISTENT_INDUSTRIAL and not ml.low_confidence
-        strong_natural = ml.predicted_class == MLClass.NATURAL_CANDIDATE and not ml.low_confidence
+        # Without facility information the model only restates persistence/thermal inputs already counted elsewhere: it is never listed as
+        # supporting or contradicting evidence, only as an uncertain, weak component.
+        facility_blind = ml.model_variant == "no_facility"
+        strong_industrial = ml.predicted_class == MLClass.PERSISTENT_INDUSTRIAL and not ml.low_confidence and not facility_blind
+        strong_natural = ml.predicted_class == MLClass.NATURAL_CANDIDATE and not ml.low_confidence and not facility_blind
         ml_item = EvidenceItem(
             category=EvidenceCategory.ML, name="rf_classification",
             observed_value=f"P(industrial)={ml.p_persistent_industrial:.2f}, P(natural)={ml.p_natural_candidate:.2f}",
-            source=f"Random Forest classifier ({ml.model_version}, proxy-labelled training data)",
+            source=f"Random Forest classifier ({ml.model_version}, heuristic development labels)",
             direction=(EvidenceDirection.SUPPORTING if strong_industrial else
                        EvidenceDirection.CONTRADICTING if strong_natural else EvidenceDirection.UNCERTAIN),
-            strength=EvidenceStrength.MODERATE if not ml.low_confidence else EvidenceStrength.WEAK,
+            strength=EvidenceStrength.MODERATE if not (ml.low_confidence or facility_blind) else EvidenceStrength.WEAK,
             explanation=(
                 f"Model assigns P(persistent industrial)={ml.p_persistent_industrial:.2f} vs. "
                 f"P(natural/agricultural candidate)={ml.p_natural_candidate:.2f}."
                 + (" Confidence is low -- treat as an anomaly candidate signal only, not a classification." if ml.low_confidence else "")
+                + ("" if ml.facility_context_state == "USABLE" else " No usable facility context was available, so the model was run without any facility-distance input (missing facility information is not treated as a distance.)")
             ),
             related_to=["intensity_deviation"],
         )
@@ -111,6 +122,10 @@ def build_evidence_stack(
         else:
             uncertain.append(ml_item)
 
+        correlation_notes.append(
+            "ML evidence uses proxy labels derived from facility proximity (<= 5 km) and persistence (>= 2). It therefore partially overlaps with the "
+            "facility-context and persistence evidence and must not be read as an independent confirmation. Evidence sources may be correlated; ML output is treated as one evidence component."
+        )
         if deviation is not None and deviation.intensity.status == DeviationStatus.COMPUTED and deviation.intensity.is_notable:
             correlation_notes.append(
                 "The thermal intensity deviation and the ML classifier's signal are correlated (both are "
@@ -129,15 +144,16 @@ def build_evidence_stack(
             direction=EvidenceDirection.UNCERTAIN, strength=EvidenceStrength.MODERATE,
             explanation=(
                 f"{facility.name} ({facility.facility_type.replace('_', ' ')}) is located approximately "
-                f"{event.facility_distance_km:.2f} km from the event. This is spatial CONTEXT only -- "
-                f"proximity does not by itself establish that the facility is the thermal source."
+                f"{event.facility_distance_km:.2f} km from the event"
+                + (f" ({event.facility_context_quality.lower()}-quality context)" if event.facility_context_quality else "")
+                + ". This is spatial CONTEXT only -- proximity does not by itself establish that the facility is the thermal source."
             ),
         ))
     else:
         unavailable.append(EvidenceItem(
             category=EvidenceCategory.FACILITY, name="facility_proximity_unavailable", source="Facility spatial index",
             direction=EvidenceDirection.UNAVAILABLE,
-            explanation="No known industrial facility was found within the configured context radius of this event.",
+            explanation="No relevant facility context within the configured radius. Absence of facility context does not indicate a natural fire.",
         ))
 
     return EvidenceStack(

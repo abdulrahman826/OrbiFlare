@@ -3,51 +3,58 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html, body {
-  background-color: #0a0c0f;
-  color: #d4d7da;
+  background-color: #F5F1E8;
+  color: #1F2421;
 }
 
 body {
   font-feature-settings: "tnum" 1;
+  font-size: 14px;
 }
 
 ::selection {
-  background: #1f8f9e;
-  color: #0a0c0f;
+  background: rgba(47, 74, 58, 0.22);
 }
 
-.scrollbar-thin::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-.scrollbar-thin::-webkit-scrollbar-track {
-  background: #12151b;
-}
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background: #2a3038;
-  border-radius: 4px;
+:focus-visible {
+  outline: 2px solid #2F4A3A;
+  outline-offset: 1px;
 }
 
+.scrollbar-thin::-webkit-scrollbar { width: 8px; height: 8px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: #EDE8DA; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: #C2BAA5; border-radius: 3px; }
+
+/* Shared, compact, rectangular controls (dark = primary action, light = secondary). */
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center whitespace-nowrap rounded bg-accent px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-base-850 transition-colors hover:bg-accent-bright disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center whitespace-nowrap rounded border border-base-600 bg-base-850 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-base-100 transition-colors hover:bg-base-800 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .link-action {
+    @apply text-[11px] font-semibold uppercase tracking-wider text-accent underline-offset-2 hover:underline;
+  }
+}
+
+/* MapLibre popups / controls */
 .maplibregl-popup-content {
-  background: #12151b !important;
-  color: #d4d7da !important;
-  border: 1px solid #2a3038 !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.5) !important;
+  background: #FBF9F3 !important;
+  color: #1F2421 !important;
+  border: 1px solid #C2BAA5 !important;
+  border-radius: 3px !important;
+  box-shadow: none !important;
+  padding: 8px 10px !important;
 }
-.maplibregl-popup-tip {
-  border-top-color: #12151b !important;
-  border-bottom-color: #12151b !important;
-}
+.maplibregl-popup-tip { border-top-color: #C2BAA5 !important; border-bottom-color: #C2BAA5 !important; }
 .maplibregl-ctrl-attrib { font-size: 10px; }
+.maplibregl-ctrl-group { border-radius: 3px !important; box-shadow: none !important; border: 1px solid #C2BAA5; }
 
-/* OSM raster tiles are a light basemap by nature; invert+rotate to match
-   the dark industrial theme while keeping labels/roads legible. Markers
-   and popups are excluded (only the tile canvas is filtered). */
-.orbiflare-map .maplibregl-canvas {
-  filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.9) saturate(0.5);
-}
-
+/* Restrained basemap: keep OSM readable but mute it to warm greys. Markers/popups are DOM and unaffected. */
+.orbiflare-map { background: #E9E4D6; }
+.orbiflare-map .maplibregl-canvas { filter: saturate(0.25) sepia(0.18) contrast(0.92) brightness(1.02); }

@@ -1,4 +1,4 @@
-import { Panel } from "@/components/Panel";
+import { PageHeader, Panel } from "@/components/Panel";
 
 const LIMITATIONS = [
   {
@@ -50,6 +50,14 @@ const LIMITATIONS = [
     body: "Grouping raw detections into events depends on configured spatial/temporal thresholds. Different thresholds can split or merge events differently -- clustering is a computational grouping, not proof of a single physical fire.",
   },
   {
+    title: "Historical reference incidents are context, not ground truth",
+    body: "The 30 imported historical records come from news/agency labels, have approximate coordinates, and include persistent-source, agricultural and memorial references (not only fires). OrbiFlare has not verified them, matches none of them to FIRMS detections, and never uses them for training or scoring.",
+  },
+  {
+    title: "Administrative boundaries are simplified",
+    body: "State and district polygons are simplified (~1.3 km) for orientation and point-in-polygon lookup. They are not survey-grade or official boundary data, and points near a border can resolve to a neighbouring region.",
+  },
+  {
     title: "Operator validation is required",
     body: "Every risk score, deviation, and classification in OrbiFlare is decision support for a human analyst. No automated action escalates or resolves an incident -- and the system can never autonomously mark an event Extinguished.",
   },
@@ -57,18 +65,26 @@ const LIMITATIONS = [
 
 export default function LimitationsPage() {
   return (
-    <div className="space-y-5">
-      <div>
-        <h1 className="text-lg font-semibold text-base-100">Limitations</h1>
-        <p className="max-w-3xl text-sm text-base-400">
-          OrbiFlare is designed to be scientifically honest about what it can and cannot claim. This page documents every
-          material limitation of the current build, rather than hiding them behind a polished interface.
-        </p>
-      </div>
+    <div className="space-y-3">
+      <PageHeader
+        title="Limitations"
+        sub="OrbiFlare is an intelligence and prioritisation system for human analysts. This page documents every material limitation of the current build rather than hiding it behind a polished interface."
+      />
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+      <Panel variant="section" title="What OrbiFlare never claims">
+        <ul className="grid grid-cols-1 gap-2 text-xs text-base-200 md:grid-cols-2">
+          <li><span className="text-sev-critical">✗</span> A thermal detection is automatically a confirmed fire.</li>
+          <li><span className="text-sev-critical">✗</span> Facility proximity proves the facility caused the hotspot.</li>
+          <li><span className="text-sev-critical">✗</span> Model class probability is fire probability.</li>
+          <li><span className="text-sev-critical">✗</span> The risk score predicts a future fire — it is operational prioritisation.</li>
+          <li><span className="text-sev-critical">✗</span> The model detected an industrial fire — only a proxy-labelled class probability.</li>
+          <li><span className="text-sev-critical">✗</span> The system replaces human investigation or acts autonomously on incidents.</li>
+        </ul>
+      </Panel>
+
+      <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
         {LIMITATIONS.map((l, i) => (
-          <Panel key={l.title}>
+          <Panel variant="section" key={l.title} className="h-full">
             <div className="flex gap-3">
               <span className="mt-0.5 font-mono text-xs text-base-500">{String(i + 1).padStart(2, "0")}</span>
               <div>
@@ -80,15 +96,6 @@ export default function LimitationsPage() {
         ))}
       </div>
 
-      <Panel title="What OrbiFlare never claims">
-        <ul className="grid grid-cols-1 gap-2 text-xs text-base-300 sm:grid-cols-2">
-          <li>{"✗"} &ldquo;FIRMS detected a confirmed fire&rdquo; -- only &ldquo;detected thermal activity&rdquo;</li>
-          <li>{"✗"} &ldquo;This facility caused the hotspot&rdquo; -- only spatial proximity</li>
-          <li>{"✗"} &ldquo;The model detected an industrial fire&rdquo; -- only a proxy-labelled class probability</li>
-          <li>{"✗"} &ldquo;This event will become a fire&rdquo; -- only that observed risk has increased</li>
-          <li>{"✗"} Risk score as &ldquo;fire probability&rdquo; -- it is operational prioritization only</li>
-        </ul>
-      </Panel>
     </div>
   );
 }

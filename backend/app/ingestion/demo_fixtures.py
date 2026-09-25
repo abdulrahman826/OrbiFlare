@@ -53,10 +53,10 @@ def generate_demo_dataset(seed: int = 42, now: datetime | None = None) -> tuple[
     observations: list[ThermalObservation] = []
 
     # ------------------------------------------------------------------
-    # Facility 1: Synthetic Refinery Alpha -- flagship ESCALATING scenario
+    # Facility 1: Demo Refinery Alpha -- flagship ESCALATING scenario
     # ------------------------------------------------------------------
     fac_alpha = Facility(
-        facility_id="FAC-REF-ALPHA", name="Synthetic Refinery Alpha", facility_type="oil_refinery",
+        facility_id="FAC-REF-ALPHA", name="Demo Refinery Alpha", facility_type="oil_refinery",
         industry="Petroleum Refining", latitude=22.3200, longitude=69.8500, source="DEMO",
         country="IN", state="Gujarat", region="Saurashtra Industrial Belt", is_demo=True,
     )
@@ -95,10 +95,10 @@ def generate_demo_dataset(seed: int = 42, now: datetime | None = None) -> tuple[
         observations.append(_make_obs("ALPHA-CUR", i, ts, lat, lon, float(frp_val), bt, day_night=dn))
 
     # ------------------------------------------------------------------
-    # Facility 2: Synthetic Steel Plant Beta -- STABLE / matches baseline
+    # Facility 2: Demo Steel Plant Beta -- STABLE / matches baseline
     # ------------------------------------------------------------------
     fac_beta = Facility(
-        facility_id="FAC-STEEL-BETA", name="Synthetic Steel Plant Beta", facility_type="steel_plant",
+        facility_id="FAC-STEEL-BETA", name="Demo Steel Plant Beta", facility_type="steel_plant",
         industry="Steel & Metallurgy", latitude=22.8046, longitude=86.2029, source="DEMO",
         country="IN", state="Jharkhand", region="Chhotanagpur Industrial Belt", is_demo=True,
     )
@@ -128,10 +128,10 @@ def generate_demo_dataset(seed: int = 42, now: datetime | None = None) -> tuple[
         observations.append(_make_obs("BETA-CUR", i, ts, fac_beta.latitude + dlat, fac_beta.longitude + dlon, float(frp_val), bt))
 
     # ------------------------------------------------------------------
-    # Facility 3: Synthetic Chemical Plant Gamma -- INSUFFICIENT baseline
+    # Facility 3: Demo Chemical Plant Gamma -- INSUFFICIENT baseline
     # ------------------------------------------------------------------
     fac_gamma = Facility(
-        facility_id="FAC-CHEM-GAMMA", name="Synthetic Chemical Plant Gamma", facility_type="chemical_plant",
+        facility_id="FAC-CHEM-GAMMA", name="Demo Chemical Plant Gamma", facility_type="chemical_plant",
         industry="Petrochemicals", latitude=22.3072, longitude=73.1812, source="DEMO",
         country="IN", state="Gujarat", region="Vadodara Industrial Belt", is_demo=True,
     )
@@ -168,7 +168,54 @@ def generate_demo_dataset(seed: int = 42, now: datetime | None = None) -> tuple[
         bt = float(np.clip(rng.normal(315, 4), 305, 325))
         observations.append(_make_obs("AGRI", i, ts, agri_lat + dlat, agri_lon + dlon, frp_val, bt, day_night=DayNight.DAY))
 
+    # ------------------------------------------------------------------
+    # Facility 4: Demo Mining Site Delta -- AMBIGUOUS scenario.
+    # An established baseline, a current event with a mild (not clearly
+    # significant) intensity/temporal deviation, and a facility distance
+    # placed right at the ML classifier's proxy-label training boundary
+    # (~5km) so the Random Forest is genuinely uncertain, not forced into a
+    # confident class. Demonstrates the system explicitly saying "ambiguous
+    # / requires analyst validation" instead of guessing.
+    # ------------------------------------------------------------------
+    fac_delta = Facility(
+        facility_id="FAC-MINE-DELTA", name="Demo Mining Site Delta", facility_type="mining",
+        industry="Coal Mining", latitude=23.7957, longitude=86.4304, source="DEMO",
+        country="IN", state="Jharkhand", region="Chhotanagpur Industrial Belt", is_demo=True,
+    )
+    facilities.append(fac_delta)
+
+    n_hist_delta = 14
+    for e in range(n_hist_delta):
+        days_ago = 280 - e * 18 - int(rng.integers(0, 4))
+        base_ts = now - timedelta(days=days_ago)
+        base_ts = base_ts.replace(hour=int(rng.integers(13, 21)), minute=int(rng.integers(0, 59)))
+        n_obs = int(rng.integers(2, 4))
+        for i in range(n_obs):
+            dlat_km, dlon_km = rng.normal(0, 0.15, 2)
+            dlat, dlon = _km_to_deg(fac_delta.latitude, dlat_km, dlon_km)
+            frp = float(np.clip(rng.normal(24, 4), 16, 32))
+            bt = float(np.clip(rng.normal(328, 5), 314, 340))
+            ts = base_ts + timedelta(minutes=int(i * rng.integers(15, 40)))
+            observations.append(_make_obs(f"DELTA-H{e}", i, ts, fac_delta.latitude + dlat, fac_delta.longitude + dlon, frp, bt))
+
+    # Current event: mildly elevated FRP (notable, not significant), normal
+    # persistence/duration, and a centroid offset placed ~5.0km from the
+    # facility -- right at the proxy-label boundary used to train the RF
+    # classifier (dist<=5km -> industrial, >5km -> natural candidate), so the
+    # model's class probabilities land close to 0.5/0.5 rather than a
+    # confident call either way.
+    delta_dlat, delta_dlon = _km_to_deg(fac_delta.latitude, 5.4, 0.0)
+    current_start_d = now - timedelta(hours=4)
+    frp_curve_d = [19, 21, 22, 20]
+    for i, frp_val in enumerate(frp_curve_d):
+        ts = current_start_d + timedelta(minutes=i * 40)
+        dlat_km, dlon_km = rng.normal(0, 0.1, 2)
+        lat = fac_delta.latitude + delta_dlat + (dlat_km / KM_PER_DEG_LAT)
+        lon = fac_delta.longitude + delta_dlon + (dlon_km / (KM_PER_DEG_LAT * math.cos(math.radians(fac_delta.latitude))))
+        bt = float(np.clip(330 + frp_val * 0.1 + rng.normal(0, 2), 320, 350))
+        observations.append(_make_obs("DELTA-CUR", i, ts, lat, lon, float(frp_val), bt))
+
     return facilities, observations
 
 
-DEMO_SCENARIO_LABEL = "DEMO SCENARIO -- SYNTHETIC DATA (not a NASA FIRMS observation)"
+DEMO_SCENARIO_LABEL = "DEMO SCENARIO -- sample data (not a NASA FIRMS observation)"

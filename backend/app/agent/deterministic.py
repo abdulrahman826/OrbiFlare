@@ -8,6 +8,7 @@ import re
 from dataclasses import dataclass, field
 
 EVENT_ID_RE = re.compile(r"\bEVT-[A-Z0-9]{6,12}\b", re.IGNORECASE)
+INCIDENT_ID_RE = re.compile(r"\bIND-\d{3}\b", re.IGNORECASE)
 FACILITY_ID_RE = re.compile(r"\bFAC-[A-Z0-9\-]{3,20}\b", re.IGNORECASE)
 
 
@@ -16,6 +17,8 @@ class ParsedIntent:
     intent: str
     event_ids: list[str] = field(default_factory=list)
     facility_ids: list[str] = field(default_factory=list)
+    incident_ids: list[str] = field(default_factory=list)
+    state: str | None = None
     severity: str | None = None
 
 
@@ -24,6 +27,7 @@ def parse(message: str) -> ParsedIntent:
     event_ids = [m.upper() for m in EVENT_ID_RE.findall(message)]
     facility_ids = [m.upper() for m in FACILITY_ID_RE.findall(message)]
 
+    incident_ids = [m.upper() for m in INCIDENT_ID_RE.findall(message)]
     severity = None
     for s in ("critical", "high", "medium", "low"):
         if s in text:
@@ -33,6 +37,16 @@ def parse(message: str) -> ParsedIntent:
     # Entity-specific intents take priority over generic list intents, since
     # a question like "why is EVT-X high risk?" contains "high risk" as a
     # substring but is asking about ONE event, not the whole high-risk list.
+    # Historical reference incidents (never FIRMS detections). Checked before the generic entity intents.
+    if incident_ids:
+        return ParsedIntent("get_historical_incident", incident_ids=incident_ids)
+    near = "near" in text or "around" in text or "close to" in text
+    if "incident" in text and near and event_ids:
+        return ParsedIntent("find_incidents_near_event", event_ids=event_ids)
+    if "incident" in text and near and facility_ids:
+        return ParsedIntent("find_incidents_near_facility", facility_ids=facility_ids)
+    if ("historical" in text or "incident" in text) and not event_ids and not facility_ids:
+        return ParsedIntent("list_historical_incidents", state=_state_in(text))
     if "compare" in text and len(event_ids) >= 2:
         return ParsedIntent("compare_events", event_ids=event_ids)
     if "compare" in text and len(facility_ids) >= 2:
@@ -59,6 +73,8 @@ def parse(message: str) -> ParsedIntent:
         return ParsedIntent("get_investigation", event_ids=event_ids)
 
     # Generic list/aggregate intents (no specific entity mentioned).
+    if "insufficient" in text or ("without" in text and "baseline" in text) or "no baseline" in text:
+        return ParsedIntent("list_insufficient_baseline_events")
     if "how many" in text or "count of" in text:
         return ParsedIntent("get_event_statistics")
     if "risk" in text and ("statistic" in text or "distribution" in text):
@@ -77,3 +93,12 @@ def parse(message: str) -> ParsedIntent:
         return ParsedIntent("list_events", severity=severity)
 
     return ParsedIntent("unknown")
+
+
+def _state_in(text: str) -> str | None:
+    """Indian state named in the query, matched against the bundled boundary data (longest name first)."""
+    from app.reference import admin
+    for name in sorted(admin.summary()["state_names"], key=len, reverse=True):
+        if name.lower() in text:
+            return name
+    return None

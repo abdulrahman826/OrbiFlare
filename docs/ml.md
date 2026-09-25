@@ -21,15 +21,17 @@ There is deliberately no third "confirmed industrial fire" class. If `max(P(A), 
 label = PERSISTENT_INDUSTRIAL if (dist_nearest_facility_km <= 5.0 and persistence_count >= 2) else NATURAL_AGRICULTURAL_CANDIDATE
 ```
 
-...then deliberately injects ~16% label noise and ~20-25% multiplicative feature noise, specifically so the resulting metrics don't overstate what a heuristic-derived proxy label can prove. This corpus is entirely separate from the 4-facility DEMO/SYNTHETIC scenario used to walk through the UI -- it exists only to fit the classifier's decision boundary.
+...then deliberately injects ~16% label noise and ~20-25% multiplicative feature noise, specifically so the resulting metrics don't overstate what a heuristic-derived proxy label can prove. This corpus is entirely separate from the 4-facility DEMO scenario used to walk through the UI -- it exists only to fit the classifier's decision boundary.
 
 `EvaluationMetrics.is_proxy_label_model = True` and `.caveats[]` travel with every prediction and are surfaced on the frontend Model page, the Analytics page, and every Investigation's ML Evidence panel.
 
 ## Training & validation (`train.py::train_and_evaluate`)
 
 - `RandomForestClassifier(n_estimators=200, max_depth=8, min_samples_leaf=5, class_weight="balanced")`.
-- **Geographic holdout**, not a random row split: samples are tagged with a synthetic `region_id` (0-9), and regions 8-9 are held out entirely from training -- a sanity check that the model isn't just memorizing spatial coincidences in the training population.
-- Reports: accuracy, per-class precision/recall/F1, ROC-AUC, confusion matrix, feature importance -- all computed on the (unseen) holdout regions, saved to `data/rf_metrics.json` and served via `GET /api/analytics/risk` and the Model page.
+- **Random hold-out (not a spatial hold-out).** Rows carry a `region_id` (0-9) drawn independently of every feature and label; rows with region 8-9 (~20%) are held out. Because `region_id` has no geography this is a random 20% row split and does NOT test spatial generalisation.
+- **Two models from the same corpus/split/settings (schema v2).** The FULL model uses all 7 features and is used when an identified (HIGH/MEDIUM quality) facility is nearby. The NO-FACILITY model omits `dist_nearest_facility_km` and is used when facility context is missing or LOW quality. No placeholder distance is used anywhere (the earlier 50 km stand-in was removed because the forest's response at that value was non-monotone and sparsely supported).
+- **Label/feature overlap.** The label rule uses `dist_nearest_facility_km` and `persistence_count`; both are also features. `EvaluationMetrics.label_rule_inputs` / `features_overlapping_label_rule` record this. The scores are development-set agreement with that rule, not real-world accuracy.
+- Reports: accuracy, balanced accuracy, macro/weighted F1, per-class precision/recall/F1, ROC-AUC, confusion matrix, feature importance -- all computed on the held-out rows, saved to `data/rf_metrics.json` and served via `GET /api/analytics/risk` and the Model page.
 - Class imbalance handled via `class_weight="balanced"` (the synthetic corpus is close to 50/50 by construction, but the noise injection can skew it slightly).
 
 ## Prediction (`predict.py`)

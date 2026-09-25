@@ -44,6 +44,28 @@ def init_db() -> None:
     from app.storage import models  # noqa: F401  (register mappers)
 
     Base.metadata.create_all(bind=engine)
+    _add_missing_columns()
+
+
+_ADDITIVE_COLUMNS = {
+    "events": {"facility_context_quality": "VARCHAR"},
+    "observations": {"satellite": "VARCHAR", "instrument": "VARCHAR", "scan": "FLOAT", "track": "FLOAT", "source_product": "VARCHAR"},
+}
+
+
+def _add_missing_columns() -> None:
+    """create_all() never alters existing tables. These nullable columns were added after first release, so add them
+    in place (idempotent) instead of requiring the analyst to delete their database."""
+    from sqlalchemy import inspect, text
+    insp = inspect(engine)
+    with engine.begin() as conn:
+        for table, cols in _ADDITIVE_COLUMNS.items():
+            if not insp.has_table(table):
+                continue
+            have = {c["name"] for c in insp.get_columns(table)}
+            for name, ddl in cols.items():
+                if name not in have:
+                    conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {name} {ddl}"))
 
 
 def get_db() -> Iterator[Session]:

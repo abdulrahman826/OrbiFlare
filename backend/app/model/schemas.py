@@ -14,7 +14,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
 
 
 # ---------------------------------------------------------------------------
@@ -24,7 +24,7 @@ from pydantic import BaseModel, Field
 class Sensor(str, Enum):
     VIIRS = "VIIRS"
     MODIS = "MODIS"
-    SYNTHETIC = "SYNTHETIC"
+    SYNTHETIC = "DEMO_SENSOR"
 
 
 class DayNight(str, Enum):
@@ -140,6 +140,17 @@ class ThermalObservation(BaseModel):
     source_id: Optional[str] = None
     ingestion_time: datetime = Field(default_factory=datetime.utcnow)
     quality_flags: list[QualityFlag] = Field(default_factory=list)
+    # Raw NASA FIRMS attributes, kept verbatim so every event is traceable back to the satellite record.
+    satellite: Optional[str] = Field(None, description="FIRMS satellite code (N=Suomi NPP, N20=NOAA-20, N21=NOAA-21)")
+    instrument: Optional[str] = None
+    scan: Optional[float] = Field(None, description="FIRMS along-scan pixel size, km")
+    track: Optional[float] = Field(None, description="FIRMS along-track pixel size, km")
+    source_product: Optional[str] = Field(None, description="FIRMS product the row came from, e.g. VIIRS_NOAA21_NRT")
+
+    @computed_field  # provenance flag: True only for genuine NASA FIRMS rows, never for synthetic/demo ones
+    @property
+    def is_live_firms(self) -> bool:
+        return self.source == DataSource.FIRMS
 
 
 # ---------------------------------------------------------------------------
@@ -164,6 +175,7 @@ class ThermalEvent(BaseModel):
 
     facility_id: Optional[str] = None
     facility_distance_km: Optional[float] = None
+    facility_context_quality: Optional[str] = None   # HIGH | MEDIUM | LOW (None = not classified, e.g. synthetic fixtures)
 
     status: AlertState = AlertState.DETECTED
     classification: Optional[MLClass] = None
@@ -181,6 +193,20 @@ class ThermalEvent(BaseModel):
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
     source_observation_ids: list[str] = Field(default_factory=list)
+
+    # Read-model-only fields: not stored on EventRecord itself, bulk-attached
+    # by app.storage.repositories.attach_derived_event_fields() for list/filter/
+    # sort views (Events page, GIS, agent) so those views never need a second
+    # round-trip per event to answer "how abnormal / what kind of facility /
+    # how reliable is this facility's baseline".
+    overall_deviation_score: Optional[float] = None
+    facility_type: Optional[str] = None
+    baseline_confidence: Optional[BaselineConfidence] = None
+
+    @computed_field  # True only for events built entirely from real NASA FIRMS observations
+    @property
+    def is_live_firms(self) -> bool:
+        return not self.is_demo
 
 
 # ---------------------------------------------------------------------------
@@ -337,6 +363,16 @@ class Risk(BaseModel):
     explanation: str
     caveats: list[str] = Field(default_factory=list)
     computed_at: datetime = Field(default_factory=datetime.utcnow)
+    # Evidence-policy transparency (all optional so older stored risks still load)
+    baseline_status: Optional[str] = None                 # ESTABLISHED | LIMITED | INSUFFICIENT | None (no facility baseline)
+    deviation_contribution: Optional[float] = None        # points behaviour deviation actually added
+    deviation_contribution_cap: Optional[float] = None    # most it could add under this baseline status
+    facility_context_quality: Optional[str] = None
+    contributing: list[str] = Field(default_factory=list)
+    limiting: list[str] = Field(default_factory=list)
+    missing_evidence: list[str] = Field(default_factory=list)
+    escalation_evidence: list[str] = Field(default_factory=list)   # conditional: what WOULD raise the score if observed -- not a forecast
+    severity_reason: str = ""
 
 
 # ---------------------------------------------------------------------------
@@ -371,6 +407,8 @@ class MLPrediction(BaseModel):
     feature_importance: dict[str, float] = Field(default_factory=dict)
     model_version: str
     is_proxy_label_model: bool = True
+    facility_context_state: str = "USABLE"     # USABLE | LOW_QUALITY | NONE -- which facility information the model was given
+    model_variant: str = "full"                # full | no_facility (no facility-distance input)
 
 
 # ---------------------------------------------------------------------------

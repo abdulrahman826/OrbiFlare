@@ -39,16 +39,13 @@ def get_investigation(db: Session, event_id: str) -> Investigation | None:
 
     ml = None
     if event.ml_p_industrial is not None:
-        from app.model.schemas import MLClass, MLPrediction
-        ml = MLPrediction(
-            event_id=event_id, p_persistent_industrial=event.ml_p_industrial or 0.0,
-            p_natural_candidate=event.ml_p_natural or 0.0,
-            predicted_class=event.classification or MLClass.NATURAL_CANDIDATE,
-            low_confidence=event.ml_anomaly_low_confidence, model_version="rf-proxy-v1",
-        )
+        # Re-run the (deterministic, memoised) classifier on the stored event so the prediction carries the model version, the features
+        # actually used and which facility information the model was given -- never a reconstruction with hard-coded defaults.
+        from app.intelligence import classification as classification_mod
+        ml = classification_mod.classify_event(event)
 
     alternatives = build_alternative_explanations(event, deviation, ml, facility)
-    trajectory, _ = compute_trajectory(observations, twin, event.facility_id, event.facility_distance_km, event_id)
+    trajectory, _ = compute_trajectory(observations, twin, event.facility_id, event.facility_distance_km, event_id, event.facility_context_quality)
 
     uncertainty_notes = [
         "Satellite thermal-anomaly resolution limits precise source attribution.",

@@ -37,20 +37,39 @@ class EvolutionStep:
     risk: Risk
 
 
-def evolve_event(
-    observations: list[ThermalObservation], twin: ThermalTwin | None,
-    facility_id: str | None, facility_distance_km: float | None,
-) -> list[EvolutionStep]:
-    obs_sorted = sorted(observations, key=lambda o: o.timestamp)
-    steps: list[EvolutionStep] = []
+def prefix_events(obs_sorted: list[ThermalObservation], facility_id: str | None, facility_distance_km: float | None, facility_quality: str | None = None):
+    """The partial event after each successive observation (what the trajectory and replay literally re-score)."""
+    prefixes, partials = [], []
     for k in range(1, len(obs_sorted) + 1):
         prefix = obs_sorted[:k]
         partial_event = build_event_from_group(prefix)
         partial_event.facility_id = facility_id
         partial_event.facility_distance_km = facility_distance_km
+        partial_event.facility_context_quality = facility_quality
+        prefixes.append(prefix)
+        partials.append(partial_event)
+    return prefixes, partials
+
+
+def prefetch_ml(items: list[tuple]) -> None:
+    """Classify every prefix of every event in a single model call so later per-event trajectory work is memo hits."""
+    all_partials: list[ThermalEvent] = []
+    for observations, facility_id, dist, *rest in items:
+        all_partials.extend(prefix_events(sorted(observations, key=lambda o: (o.timestamp, o.observation_id)), facility_id, dist, rest[0] if rest else None)[1])
+    classification.classify_events(all_partials)
+
+
+def evolve_event(
+    observations: list[ThermalObservation], twin: ThermalTwin | None,
+    facility_id: str | None, facility_distance_km: float | None, facility_quality: str | None = None,
+) -> list[EvolutionStep]:
+    obs_sorted = sorted(observations, key=lambda o: (o.timestamp, o.observation_id))
+    steps: list[EvolutionStep] = []
+    prefixes, partials = prefix_events(obs_sorted, facility_id, facility_distance_km, facility_quality)
+    predictions = classification.classify_events(partials)          # one model call for the whole trajectory
+    for prefix, partial_event, ml in zip(prefixes, partials, predictions):
         deviation = compute_deviation(partial_event, twin, prefix)
-        ml = classification.classify_event(partial_event)
-        recent_frp = prefix[-1].frp if prefix[-1].frp is not None else partial_event.peak_frp
+        recent_frp = risk_engine.latest_observation_frp(prefix)
         r = risk_engine.compute_risk(partial_event, deviation, ml, facility_present=facility_id is not None, recent_frp=recent_frp)
         steps.append(EvolutionStep(observation=prefix[-1], partial_event=partial_event, deviation=deviation, ml=ml, risk=r))
     return steps
@@ -82,9 +101,9 @@ _DIRECTION_TEXT = {
 
 def compute_trajectory(
     observations: list[ThermalObservation], twin: ThermalTwin | None,
-    facility_id: str | None, facility_distance_km: float | None, event_id: str,
+    facility_id: str | None, facility_distance_km: float | None, event_id: str, facility_quality: str | None = None,
 ) -> tuple[RiskTrajectory, list[EvolutionStep]]:
-    steps = evolve_event(observations, twin, facility_id, facility_distance_km)
+    steps = evolve_event(observations, twin, facility_id, facility_distance_km, facility_quality)
     scores = [s.risk.risk_score for s in steps]
     direction = _direction(scores)
     text = _DIRECTION_TEXT[direction].format(first=scores[0] if scores else 0, last=scores[-1] if scores else 0)

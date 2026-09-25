@@ -6,7 +6,8 @@ from sqlalchemy.orm import Session
 from app.intelligence.investigation import get_investigation
 from app.reporting.csv import events_to_csv
 from app.reporting.geojson import events_to_geojson
-from app.reporting.incident_report import build_incident_report
+from app.reference import context as ref_context, incidents as ref_incidents
+from app.reporting.incident_report import build_historical_incident_report, build_incident_report
 from app.storage import repositories as repo
 from app.storage.database import get_db
 
@@ -19,6 +20,14 @@ def generate_event_report(event_id: str, db: Session = Depends(get_db)) -> dict:
     if inv is None:
         raise HTTPException(404, f"Event {event_id} not found")
     return build_incident_report(inv)
+
+
+@router.post("/historical-incident/{incident_id}")
+def generate_historical_incident_report(incident_id: str, db: Session = Depends(get_db)) -> dict:
+    inc = ref_incidents.get_incident(incident_id)
+    if inc is None:
+        raise HTTPException(404, f"Historical incident {incident_id} not found")
+    return build_historical_incident_report(ref_context.incident_context(db, inc))
 
 
 @router.get("/events.csv")

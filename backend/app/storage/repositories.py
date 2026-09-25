@@ -69,6 +69,7 @@ def bulk_insert_observations(db: Session, obs: list[sc.ThermalObservation]) -> i
             day_night=o.day_night.value if o.day_night else None, source=o.source.value,
             source_id=o.source_id, ingestion_time=o.ingestion_time,
             quality_flags=[q.value for q in o.quality_flags],
+            satellite=o.satellite, instrument=o.instrument, scan=o.scan, track=o.track, source_product=o.source_product,
         )
         db.add(row)
         count += 1
@@ -97,6 +98,7 @@ def observation_to_schema(row: m.ObservationRecord) -> sc.ThermalObservation:
         brightness_temperature_11=row.brightness_temperature_11, frp=row.frp, confidence=row.confidence,
         day_night=row.day_night, source=row.source, source_id=row.source_id,
         ingestion_time=row.ingestion_time, quality_flags=row.quality_flags or [],
+        satellite=row.satellite, instrument=row.instrument, scan=row.scan, track=row.track, source_product=row.source_product,
     )
 
 
@@ -120,6 +122,7 @@ def upsert_event(db: Session, e: sc.ThermalEvent) -> m.EventRecord:
     row.footprint_radius_km = e.footprint_radius_km
     row.facility_id = e.facility_id
     row.facility_distance_km = e.facility_distance_km
+    row.facility_context_quality = e.facility_context_quality
     row.status = e.status.value
     row.classification = e.classification.value if e.classification else None
     row.ml_p_industrial = e.ml_p_industrial
@@ -164,13 +167,51 @@ def get_event(db: Session, event_id: str) -> Optional[m.EventRecord]:
     return db.get(m.EventRecord, event_id)
 
 
+def list_deviation_scores(db: Session, event_ids: list[str]) -> dict[str, float]:
+    if not event_ids:
+        return {}
+    rows = db.execute(
+        select(m.DeviationRecord.event_id, m.DeviationRecord.overall_deviation_score)
+        .where(m.DeviationRecord.event_id.in_(event_ids))
+    ).all()
+    return {event_id: score for event_id, score in rows}
+
+
+def attach_derived_event_fields(db: Session, events: list[sc.ThermalEvent]) -> list[sc.ThermalEvent]:
+    """Bulk-attach read-model-only fields that aren't columns on EventRecord
+    itself (deviation score, facility type, facility baseline confidence) so
+    list/filter/sort views (Events page, GIS, reports, agent) can use them
+    without an extra round-trip per event. Bulk-queried: O(events + distinct
+    facilities), never per-event."""
+    event_ids = [e.event_id for e in events]
+    deviation_scores = list_deviation_scores(db, event_ids)
+
+    facility_ids = {e.facility_id for e in events if e.facility_id}
+    facility_type_by_id: dict[str, str] = {}
+    baseline_confidence_by_id: dict[str, sc.BaselineConfidence] = {}
+    for fid in facility_ids:
+        f = get_facility(db, fid)
+        if f:
+            facility_type_by_id[fid] = f.facility_type
+        twin = get_thermal_twin(db, fid)
+        if twin:
+            baseline_confidence_by_id[fid] = twin.baseline_confidence
+
+    for e in events:
+        e.overall_deviation_score = deviation_scores.get(e.event_id)
+        if e.facility_id:
+            e.facility_type = facility_type_by_id.get(e.facility_id)
+            e.baseline_confidence = baseline_confidence_by_id.get(e.facility_id)
+    return events
+
+
 def event_to_schema(row: m.EventRecord) -> sc.ThermalEvent:
     return sc.ThermalEvent(
         event_id=row.event_id, first_detected=row.first_detected, last_detected=row.last_detected,
         duration_hours=row.duration_hours, observation_count=row.observation_count,
         peak_frp=row.peak_frp, mean_frp=row.mean_frp, peak_bt=row.peak_bt, mean_bt=row.mean_bt,
         centroid_lat=row.centroid_lat, centroid_lon=row.centroid_lon, footprint_radius_km=row.footprint_radius_km,
-        facility_id=row.facility_id, facility_distance_km=row.facility_distance_km,
+        facility_id=row.facility_id, facility_distance_km=row.facility_distance_km, facility_context_quality=row.facility_context_quality,
         status=row.status, classification=row.classification, ml_p_industrial=row.ml_p_industrial,
         ml_p_natural=row.ml_p_natural, ml_anomaly_low_confidence=row.ml_anomaly_low_confidence,
         risk_score=row.risk_score, severity=row.severity, trajectory_direction=row.trajectory_direction,
@@ -284,6 +325,13 @@ def set_alert_state(db: Session, event_id: str, new_state: str, actor: str, note
         ev.status = new_state
     db.flush()
     return alert
+
+
+def add_alert_note(db: Session, event_id: str, note: str, actor: str = "system") -> None:
+    """Audit-trail entry that records WHY something happened to an event without changing its lifecycle state."""
+    alert = get_or_create_alert(db, event_id)
+    db.add(m.AlertHistoryRecord(event_id=event_id, from_state=alert.state, to_state=alert.state, actor=actor, note=note))
+    db.flush()
 
 
 def list_alert_history(db: Session, event_id: str) -> list[m.AlertHistoryRecord]:

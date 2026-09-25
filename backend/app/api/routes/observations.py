@@ -10,6 +10,8 @@ router = APIRouter(prefix="/observations", tags=["observations"])
 
 
 @router.get("")
-def list_observations(db: Session = Depends(get_db)) -> list[dict]:
+def list_observations(source: str | None = None, db: Session = Depends(get_db)) -> list[dict]:
     rows = repo.list_all_observations(db)
+    if source:
+        rows = [r for r in rows if r.source.upper() == source.upper()]
     return [repo.observation_to_schema(r).model_dump(mode="json") for r in rows]

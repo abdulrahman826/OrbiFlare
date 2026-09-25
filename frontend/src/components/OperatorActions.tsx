@@ -46,12 +46,7 @@ export function OperatorActions({ eventId, currentState, onChanged }: { eventId:
             key={s}
             disabled={busy}
             onClick={() => act(s)}
-            className={cn(
-              "rounded border px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-50",
-              s === "EXTINGUISHED"
-                ? "border-base-500 text-base-300 hover:bg-base-700"
-                : "border-accent/50 text-accent hover:bg-accent/10"
-            )}
+            className={cn(s === "EXTINGUISHED" ? "btn-secondary" : "btn")}
           >
             {LABELS[s]}
           </button>

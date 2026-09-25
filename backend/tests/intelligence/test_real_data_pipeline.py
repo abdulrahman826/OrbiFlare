@@ -85,7 +85,7 @@ def test_real_data_pipeline_produces_traceable_investigation(db_session):
     evidence_stacks = {e.event_id: evidence_mod.build_evidence_stack(e, deviations[e.event_id], predictions[e.event_id], facilities_by_id.get(e.facility_id)) for e in events}
     risks = {}
     for e in events:
-        r = risk_mod.compute_risk(e, deviations[e.event_id], predictions[e.event_id], facility_present=e.facility_id is not None)
+        r = risk_mod.compute_risk(e, deviations[e.event_id], predictions[e.event_id], facility_present=e.facility_id is not None, recent_frp=risk_mod.latest_observation_frp(obs_by_event.get(e.event_id)))
         risks[e.event_id] = r
         e.risk_score, e.severity = r.risk_score, r.severity
     trajectories = {}

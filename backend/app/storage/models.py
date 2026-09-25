@@ -69,6 +69,11 @@ class ObservationRecord(Base):
     source_id: Mapped[str | None] = mapped_column(String, nullable=True)
     ingestion_time: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     quality_flags: Mapped[list] = mapped_column(JSON, default=list)
+    satellite: Mapped[str | None] = mapped_column(String, nullable=True)
+    instrument: Mapped[str | None] = mapped_column(String, nullable=True)
+    scan: Mapped[float | None] = mapped_column(Float, nullable=True)
+    track: Mapped[float | None] = mapped_column(Float, nullable=True)
+    source_product: Mapped[str | None] = mapped_column(String, nullable=True)
     event_id: Mapped[str | None] = mapped_column(String, ForeignKey("events.event_id"), nullable=True, index=True)
 
     __table_args__ = (Index("ix_observation_time_loc", "timestamp", "latitude", "longitude"),)
@@ -94,6 +99,7 @@ class EventRecord(Base):
 
     facility_id: Mapped[str | None] = mapped_column(String, ForeignKey("facilities.facility_id"), nullable=True, index=True)
     facility_distance_km: Mapped[float | None] = mapped_column(Float, nullable=True)
+    facility_context_quality: Mapped[str | None] = mapped_column(String, nullable=True)
 
     status: Mapped[str] = mapped_column(String, default="DETECTED", index=True)
     classification: Mapped[str | None] = mapped_column(String, nullable=True)
@@ -202,3 +208,22 @@ class DataQualityRecordORM(Base):
     rows_flagged: Mapped[int] = mapped_column(Integer, default=0)
     rows_rejected: Mapped[int] = mapped_column(Integer, default=0)
     issues: Mapped[dict] = mapped_column(JSON, default=dict)
+
+
+class FirmsSyncStateRecord(Base):
+    """Single-row (id=1) record of the last on-demand NASA FIRMS refresh -- kept separate from observations so
+    'last sync' (when we asked NASA) and 'last acquisition' (when the satellite saw it) are never conflated."""
+    __tablename__ = "firms_sync_state"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, default=1)
+    last_attempt_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    last_sync_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)  # last SUCCESSFUL sync
+    last_status: Mapped[str | None] = mapped_column(String, nullable=True)          # OK | FAILED
+    last_error_code: Mapped[str | None] = mapped_column(String, nullable=True)
+    last_error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    source_product: Mapped[str | None] = mapped_column(String, nullable=True)
+    satellites: Mapped[list] = mapped_column(JSON, default=list)
+    last_acquisition: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    received: Mapped[int] = mapped_column(Integer, default=0)
+    new_observations: Mapped[int] = mapped_column(Integer, default=0)
+    updated_observations: Mapped[int] = mapped_column(Integer, default=0)

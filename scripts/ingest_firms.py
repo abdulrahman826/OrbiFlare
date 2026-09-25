@@ -24,7 +24,7 @@ import _pathsetup  # noqa: F401
 import pandas as pd
 
 from app.config import get_settings
-from app.ingestion.firms import ingest_from_live_api, ingest_from_local_file
+from app.ingestion.firms import INDIA_BBOX, ingest_from_live_api, ingest_from_local_file
 from app.model.schemas import Sensor
 from app.storage import repositories as repo
 from app.storage.database import SessionLocal, init_db
@@ -38,7 +38,7 @@ def main() -> None:
     source.add_argument("--live", action="store_true", help="Fetch from the live NASA FIRMS API using FIRMS_MAP_KEY")
     parser.add_argument("--sensor", default="VIIRS", choices=["VIIRS", "MODIS"])
     parser.add_argument("--bbox", nargs=4, type=float, metavar=("WEST", "SOUTH", "EAST", "NORTH"),
-                         default=(68.0, 6.0, 98.0, 37.0), help="--live only: bounding box (default: India)")
+                         default=INDIA_BBOX, help="--live only: bounding box (default: India)")
     parser.add_argument("--days", type=int, default=1, help="--live only: day range 1-10 (default: 1)")
     args = parser.parse_args()
 

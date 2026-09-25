@@ -6,7 +6,16 @@ import type {
   EventReplay,
   EvidenceStack,
   Facility,
+  AdminFeatureCollection,
+  FacilityContext,
+  FirmsRefreshFailure,
+  FirmsRefreshSummary,
   GeoFeatureCollection,
+  Health,
+  HistoricalIncident,
+  IncidentContext,
+  IncidentSummary,
+  LiveSummary,
   Investigation,
   Risk,
   RiskTrajectory,
@@ -39,7 +48,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  health: () => request<{ status: string; mode: string; database: string }>("/health"),
+  health: () => request<Health>("/health"),
+
+  listObservations: (source?: string) => request<ThermalObservation[]>(`/observations${source ? `?source=${source}` : ""}`),
 
   listEvents: (params?: Record<string, string>) => {
     const qs = params ? "?" + new URLSearchParams(params).toString() : "";
@@ -69,6 +80,16 @@ export const api = {
   analyticsOverview: () => request<AnalyticsOverview>(`/analytics/overview`),
   analyticsEvents: () => request<Record<string, unknown>>(`/analytics/events`),
   analyticsRisk: () => request<{ risk_scores: { event_id: string; risk_score: number; severity: string | null }[]; trajectory_directions: Record<string, number>; model_metrics: EvaluationMetrics }>(`/analytics/risk`),
+  analyticsDataQuality: () =>
+    request<{
+      ingestion_batches: { batch_id: string; source: string; ingested_at: string; rows_received: number; rows_accepted: number; rows_flagged: number; rows_rejected: number; issues: Record<string, number> }[];
+      coordinate_validation: {
+        region_bbox: { west: number; south: number; east: number; north: number; label: string };
+        total_observations: number; in_region_count: number; outside_region_count: number;
+        latitude_range: [number, number] | null; longitude_range: [number, number] | null;
+        outside_region_samples: { observation_id: string; latitude: number; longitude: number; source: string; timestamp: string }[];
+      };
+    }>(`/analytics/data-quality`),
 
   activeAlerts: () => request<{ event_id: string; state: string; severity: string | null; risk_score: number | null }[]>(`/alerts`),
   alertHistory: (id: string) => request<{ from_state: string | null; to_state: string; actor: string; note: string | null; changed_at: string }[]>(`/alerts/${id}/history`),
@@ -79,6 +100,31 @@ export const api = {
   generateEventReport: (id: string) => request<Record<string, unknown>>(`/reports/event/${id}`, { method: "POST" }),
   eventsCsvUrl: () => `${API_BASE}/reports/events.csv`,
   eventsGeojsonUrl: () => `${API_BASE}/reports/events.geojson`,
+
+  // Reference data -- HISTORICAL / GEOGRAPHIC, never live FIRMS.
+  listIncidents: (params?: Record<string, string>) =>
+    request<HistoricalIncident[]>(`/reference/incidents${params ? "?" + new URLSearchParams(params).toString() : ""}`),
+  incidentSummary: () => request<IncidentSummary>(`/reference/incidents/summary`),
+  getIncident: (id: string) => request<HistoricalIncident>(`/reference/incidents/${id}`),
+  getIncidentContext: (id: string, radiusKm = 50) => request<IncidentContext>(`/reference/incidents/${id}/context?radius_km=${radiusKm}`),
+  incidentsNear: (lat: number, lon: number, radiusKm = 50) =>
+    request<{ distance_km: number; incident: HistoricalIncident }[]>(`/reference/incidents/near?lat=${lat}&lon=${lon}&radius_km=${radiusKm}`),
+  adminRegions: (level: "state" | "district" = "state") => request<AdminFeatureCollection>(`/reference/admin-regions?level=${level}`),
+  generateIncidentReport: (id: string) => request<Record<string, unknown>>(`/reports/historical-incident/${id}`, { method: "POST" }),
+
+  /** Server-side NASA FIRMS refresh (the MAP_KEY never leaves the backend). Resolves with a summary or a short failure. */
+  refreshFirms: async (): Promise<{ ok: true; body: FirmsRefreshSummary } | { ok: false; body: FirmsRefreshFailure | null }> => {
+    try {
+      const res = await fetch(`${API_BASE}/firms/refresh`, { method: "POST", cache: "no-store" });
+      const body = await res.json().catch(() => null);
+      return res.ok ? { ok: true, body } : { ok: false, body };
+    } catch {
+      return { ok: false, body: null };
+    }
+  },
+
+  getFacilityContext: (eventId: string) => request<FacilityContext>(`/context/events/${eventId}`),
+  liveSummary: () => request<LiveSummary>(`/context/live-summary`),
 
   agentQuery: (message: string) => request<AgentResponse>(`/agent/query`, { method: "POST", body: JSON.stringify({ message }) }),
 

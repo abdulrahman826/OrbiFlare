@@ -18,23 +18,84 @@ from app.storage import repositories as repo
 
 def list_events(db: Session, severity: str | None = None, status: str | None = None, limit: int = 20) -> list[dict]:
     rows = repo.list_events(db, severity=severity, status=status)
-    return [_event_summary(repo.event_to_schema(r)) for r in rows[:limit]]
+    events = repo.attach_derived_event_fields(db, [repo.event_to_schema(r) for r in rows[:limit]])
+    return [_event_summary(e) for e in events]
 
 
 def list_high_risk_events(db: Session, limit: int = 10) -> list[dict]:
     rows = repo.list_events(db)
     events = sorted((repo.event_to_schema(r) for r in rows), key=lambda e: e.risk_score or 0, reverse=True)
-    return [_event_summary(e) for e in events[:limit] if (e.severity and e.severity.value in ("HIGH", "CRITICAL"))]
+    high_risk = [e for e in events if (e.severity and e.severity.value in ("HIGH", "CRITICAL"))][:limit]
+    return [_event_summary(e) for e in repo.attach_derived_event_fields(db, high_risk)]
 
 
 def list_escalating_events(db: Session, limit: int = 10) -> list[dict]:
     rows = repo.list_events(db, trajectory="ESCALATING")
-    return [_event_summary(repo.event_to_schema(r)) for r in rows[:limit]]
+    events = repo.attach_derived_event_fields(db, [repo.event_to_schema(r) for r in rows[:limit]])
+    return [_event_summary(e) for e in events]
+
+
+def list_insufficient_baseline_events(db: Session, limit: int = 10) -> list[dict]:
+    """Events whose facility Thermal Twin has INSUFFICIENT history (or that have no facility
+    baseline at all) -- i.e. events for which behavioural deviation cannot be assessed."""
+    rows = repo.list_events(db)
+    events = repo.attach_derived_event_fields(db, [repo.event_to_schema(r) for r in rows])
+    picked = [e for e in events if getattr(e, "baseline_confidence", None) in (None, "INSUFFICIENT")
+              or str(getattr(e, "baseline_confidence", "")).endswith("INSUFFICIENT")]
+    picked.sort(key=lambda e: e.risk_score or 0, reverse=True)
+    return [_event_summary(e) for e in picked[:limit]]
+
+
+# --- Historical reference incidents (READ-ONLY; separate from FIRMS observations, events and demo data) ---
+
+_INTERNAL_KEYS = {"source_dataset", "reference_repository", "boundary_source"}
+
+
+def _public(obj):
+    """Strip internal repository/file provenance from anything the console returns (kept in storage for traceability)."""
+    if isinstance(obj, dict):
+        return {k: _public(v) for k, v in obj.items() if k not in _INTERNAL_KEYS}
+    if isinstance(obj, list):
+        return [_public(v) for v in obj]
+    return obj
+
+
+def list_historical_incidents(db: Session, state: str | None = None, kind: str | None = None, limit: int = 30) -> list[dict]:
+    from app.reference import incidents as ref
+    return [_public(i.model_dump(mode="json")) for i in ref.list_incidents(state=state, kind=kind)[:limit]]
+
+
+def get_historical_incident(db: Session, incident_id: str) -> dict | None:
+    from app.reference import context, incidents as ref
+    inc = ref.get_incident(incident_id)
+    return _public(context.incident_context(db, inc).model_dump(mode="json")) if inc else None
+
+
+def find_incidents_near_event(db: Session, event_id: str, radius_km: float = 50.0) -> dict | None:
+    from app.reference import context
+    row = repo.get_event(db, event_id)
+    if row is None:
+        return None
+    e = repo.event_to_schema(row)
+    return {"event_id": event_id, "radius_km": radius_km,
+            "incidents": [{"distance_km": round(d, 1), **_public(i.model_dump(mode="json"))} for i, d in context.incidents_near(e.centroid_lat, e.centroid_lon, radius_km)]}
+
+
+def find_incidents_near_facility(db: Session, facility_id: str, radius_km: float = 50.0) -> dict | None:
+    from app.reference import context
+    row = repo.get_facility(db, facility_id)
+    if row is None:
+        return None
+    return {"facility_id": facility_id, "radius_km": radius_km,
+            "incidents": [{"distance_km": round(d, 1), **_public(i.model_dump(mode="json"))} for i, d in context.incidents_near(row.latitude, row.longitude, radius_km)]}
 
 
 def get_event(db: Session, event_id: str) -> dict | None:
     row = repo.get_event(db, event_id)
-    return _event_summary(repo.event_to_schema(row)) if row else None
+    if row is None:
+        return None
+    event = repo.attach_derived_event_fields(db, [repo.event_to_schema(row)])[0]
+    return _event_summary(event)
 
 
 def get_investigation_tool(db: Session, event_id: str) -> dict | None:
@@ -94,7 +155,7 @@ def compare_events(db: Session, event_id_a: str, event_id_b: str) -> dict | None
     a, b = repo.get_event(db, event_id_a), repo.get_event(db, event_id_b)
     if a is None or b is None:
         return None
-    ea, eb = repo.event_to_schema(a), repo.event_to_schema(b)
+    ea, eb = repo.attach_derived_event_fields(db, [repo.event_to_schema(a), repo.event_to_schema(b)])
     return {"event_a": _event_summary(ea), "event_b": _event_summary(eb),
             "risk_delta": round((ea.risk_score or 0) - (eb.risk_score or 0), 1)}
 
@@ -123,8 +184,8 @@ def list_persistent_events(db: Session, limit: int = 10) -> list[dict]:
     persistent = sorted(
         (e for e in events if e.observation_count >= PERSISTENT_OBSERVATION_THRESHOLD),
         key=lambda e: e.observation_count, reverse=True,
-    )
-    return [_event_summary(e) for e in persistent[:limit]]
+    )[:limit]
+    return [_event_summary(e) for e in repo.attach_derived_event_fields(db, persistent)]
 
 
 def facility_event_frequency(db: Session, limit: int = 10) -> list[dict]:
@@ -272,11 +333,29 @@ def compare_event_to_baseline(db: Session, event_id: str) -> dict | None:
     }
 
 
+def _deviation_label(score: float | None) -> str:
+    """A coarse, honest label derived directly from the real, already-computed
+    overall_deviation_score -- never a separate fabricated classification.
+    None means no Deviation record exists yet for this event (e.g. no
+    facility match), distinct from a real INSUFFICIENT-baseline score of 0."""
+    if score is None:
+        return "UNAVAILABLE"
+    if score >= 50:
+        return "SIGNIFICANT"
+    if score > 0:
+        return "NOTABLE"
+    return "NORMAL"
+
+
 def _event_summary(e) -> dict:
     return {
         "event_id": e.event_id, "status": e.status.value, "severity": e.severity.value if e.severity else None,
         "risk_score": e.risk_score, "trajectory_direction": e.trajectory_direction.value if e.trajectory_direction else None,
-        "facility_id": e.facility_id, "peak_frp": e.peak_frp, "duration_hours": e.duration_hours,
+        "facility_id": e.facility_id, "facility_type": getattr(e, "facility_type", None),
+        "baseline_confidence": getattr(e, "baseline_confidence", None),
+        "overall_deviation_score": getattr(e, "overall_deviation_score", None),
+        "deviation_label": _deviation_label(getattr(e, "overall_deviation_score", None)),
+        "peak_frp": e.peak_frp, "duration_hours": e.duration_hours,
         "observation_count": e.observation_count, "is_demo": e.is_demo,
         "first_detected": e.first_detected.isoformat(), "classification": e.classification.value if e.classification else None,
     }
@@ -297,6 +376,11 @@ TOOL_REGISTRY: dict[str, Any] = {
     "list_high_risk_events": list_high_risk_events,
     "list_escalating_events": list_escalating_events,
     "list_persistent_events": list_persistent_events,
+    "list_insufficient_baseline_events": list_insufficient_baseline_events,
+    "list_historical_incidents": list_historical_incidents,
+    "get_historical_incident": get_historical_incident,
+    "find_incidents_near_event": find_incidents_near_event,
+    "find_incidents_near_facility": find_incidents_near_facility,
     "facility_event_frequency": facility_event_frequency,
     "get_event_statistics": get_event_statistics,
     "get_facility_statistics": get_facility_statistics,

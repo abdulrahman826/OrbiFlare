@@ -5,6 +5,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 os.environ.setdefault("DATABASE_URL", "sqlite:///:memory:")
+os.environ["FIRMS_AUTO_SYNC"] = "false"   # tests must never reach the network or purge data
 
 import pytest
 

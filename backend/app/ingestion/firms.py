@@ -27,6 +27,13 @@ from app.preprocessing.validation import validate_coordinates, validate_timestam
 
 settings = get_settings()
 
+# West, South, East, North -- the default ingestion region and the single
+# source of truth for the coarse in/out-of-region breakdown surfaced on the
+# Analytics page's "Data Quality" panel (app/api/routes/analytics.py). This
+# is a bounding box, not administrative-boundary geometry -- it is reported
+# as exactly that, never as state/district-level precision we don't have.
+INDIA_BBOX: tuple[float, float, float, float] = (68.0, 6.0, 98.0, 37.0)
+
 
 def _parse_csv_text(text: str, sensor: Sensor) -> tuple[list[ThermalObservation], int, list[str]]:
     reader = csv.DictReader(io.StringIO(text))
@@ -55,7 +62,7 @@ def ingest_from_local_file(path: str | Path, sensor: Sensor = Sensor.VIIRS) -> t
 
 
 def ingest_from_live_api(
-    bbox: tuple[float, float, float, float] = (68.0, 6.0, 98.0, 37.0),  # India bounding box (west, south, east, north)
+    bbox: tuple[float, float, float, float] = INDIA_BBOX,
     day_range: int = 1,
     sensor: Sensor = Sensor.VIIRS,
 ) -> tuple[list[ThermalObservation], DataQualityRecord]:

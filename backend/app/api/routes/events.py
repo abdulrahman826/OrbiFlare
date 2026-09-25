@@ -21,7 +21,8 @@ def list_events(
 ) -> list[dict]:
     rows = repo.list_events(db, severity=severity, status=status, facility_id=facility_id,
                              trajectory=trajectory, classification=classification)
-    return [repo.event_to_schema(r).model_dump(mode="json") for r in rows]
+    events = repo.attach_derived_event_fields(db, [repo.event_to_schema(r) for r in rows])
+    return [e.model_dump(mode="json") for e in events]
 
 
 @router.get("/{event_id}")
@@ -29,7 +30,8 @@ def get_event(event_id: str, db: Session = Depends(get_db)) -> dict:
     row = repo.get_event(db, event_id)
     if row is None:
         raise HTTPException(404, f"Event {event_id} not found")
-    return repo.event_to_schema(row).model_dump(mode="json")
+    event = repo.attach_derived_event_fields(db, [repo.event_to_schema(row)])[0]
+    return event.model_dump(mode="json")
 
 
 @router.get("/{event_id}/timeline")
@@ -73,7 +75,7 @@ def event_trajectory(event_id: str, db: Session = Depends(get_db)) -> dict:
     event = repo.event_to_schema(row)
     obs = [repo.observation_to_schema(o) for o in repo.list_observations_for_event(db, event_id)]
     twin = repo.get_thermal_twin(db, event.facility_id) if event.facility_id else None
-    traj, _ = compute_trajectory(obs, twin, event.facility_id, event.facility_distance_km, event_id)
+    traj, _ = compute_trajectory(obs, twin, event.facility_id, event.facility_distance_km, event_id, event.facility_context_quality)
     return traj.model_dump(mode="json")
 
 
@@ -85,7 +87,7 @@ def event_replay(event_id: str, db: Session = Depends(get_db)) -> dict:
     event = repo.event_to_schema(row)
     obs = [repo.observation_to_schema(o) for o in repo.list_observations_for_event(db, event_id)]
     twin = repo.get_thermal_twin(db, event.facility_id) if event.facility_id else None
-    replay = build_replay(event_id, obs, twin, event.facility_id, event.facility_distance_km)
+    replay = build_replay(event_id, obs, twin, event.facility_id, event.facility_distance_km, event.facility_context_quality)
     return replay.model_dump(mode="json")
 
 

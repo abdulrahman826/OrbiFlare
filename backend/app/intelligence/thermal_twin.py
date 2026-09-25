@@ -55,7 +55,7 @@ def _baseline_confidence(n_events: int, n_observations: int) -> BaselineConfiden
     if (n_events >= settings.baseline_min_events_established and
             n_observations >= settings.baseline_min_observations_established):
         return BaselineConfidence.ESTABLISHED
-    if n_observations >= settings.baseline_min_observations_limited:
+    if n_observations >= settings.baseline_min_observations_limited and n_events >= settings.baseline_min_events_limited:
         return BaselineConfidence.LIMITED
     return BaselineConfidence.INSUFFICIENT
 

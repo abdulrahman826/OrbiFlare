@@ -1,39 +1,41 @@
-import Link from "next/link";
-import { BaselineStatus } from "@/components/BaselineStatus";
-import { Panel } from "@/components/Panel";
+import { KPI } from "@/components/KPI";
+import { PageHeader, StateBlock } from "@/components/Panel";
+import { ThermalTwinCard } from "@/components/ThermalTwinCard";
 import { api } from "@/lib/api";
-import { fmtNum } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
 export default async function ThermalTwinsPage() {
-  const [twins, facilities] = await Promise.all([api.listThermalTwins(), api.listFacilities()]);
-  const facilityById = Object.fromEntries(facilities.map((f) => [f.facility_id, f]));
+  let data;
+  try {
+    data = await Promise.all([api.listThermalTwins(), api.listFacilities(), api.listEvents()]);
+  } catch {
+    return <StateBlock kind="error" title="Backend unavailable" />;
+  }
+  const [twins, facilities, events] = data;
+  const name = Object.fromEntries(facilities.map((f) => [f.facility_id, f.name]));
+  const count = (c: string) => twins.filter((t) => t.baseline_confidence === c).length;
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h1 className="text-lg font-semibold text-base-100">Facility Thermal Twins</h1>
-        <p className="text-sm text-base-400">Multidimensional behavioural baselines learned from each facility&apos;s history.</p>
+    <div className="space-y-3">
+      <PageHeader title="Facility Thermal Twins" sub="Multidimensional behavioural baselines learned from each facility's own history: what is normal here." />
+      <div className="grid grid-cols-2 gap-2.5 md:grid-cols-4">
+        <KPI label="Twins" value={twins.length} />
+        <KPI label="Established" value={count("ESTABLISHED")} tone="good" />
+        <KPI label="Limited" value={count("LIMITED")} tone="warn" />
+        <KPI label="Insufficient" value={count("INSUFFICIENT")} tone={count("INSUFFICIENT") ? "critical" : "default"} sub="never fabricated" />
       </div>
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-        {twins.map((t) => {
-          const f = facilityById[t.facility_id];
-          return (
-            <Link key={t.facility_id} href={`/thermal-twins/${t.facility_id}`} className="block rounded-md border border-base-700 bg-base-850 p-3 hover:border-accent/50 hover:bg-base-800">
-              <div className="flex items-start justify-between">
-                <div className="text-sm font-medium text-base-100">{f?.name || t.facility_id}</div>
-                <BaselineStatus confidence={t.baseline_confidence} />
-              </div>
-              <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-base-300">
-                <span>Normal FRP: <b className="font-mono text-base-100">{fmtNum(t.normal_frp.median, 0)} MW</b></span>
-                <span>Events: <b className="font-mono text-base-100">{t.historical_event_count}</b></span>
-              </div>
-            </Link>
-          );
-        })}
-      </div>
-      {twins.length === 0 && <Panel><p className="text-sm text-base-400">No thermal twins computed yet.</p></Panel>}
+      {twins.length === 0 ? (
+        <StateBlock kind="empty" title="No thermal twins computed yet" />
+      ) : (
+        <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 xl:grid-cols-3">
+          {twins.map((t) => {
+            const mine = events.filter((e) => e.facility_id === t.facility_id);
+            const devs = mine.map((e) => e.overall_deviation_score).filter((v): v is number => v !== null);
+            return <ThermalTwinCard key={t.facility_id} twin={t} facilityName={name[t.facility_id]} activeEvents={mine.length} maxDeviation={devs.length ? Math.max(...devs) : null} />;
+          })}
+        </div>
+      )}
     </div>
   );
 }

@@ -18,7 +18,7 @@ See [docs/architecture.md](docs/architecture.md) for the full diagram and ration
 
 ## Quickstart (no external services required)
 
-The app runs fully offline with zero API keys, using a local SQLite database and a clearly labelled **DEMO / SYNTHETIC** scenario (a synthetic refinery, steel plant, chemical plant, and an unassociated agricultural-fire-shaped event). Nothing about the demo data is presented as a real NASA observation.
+The app runs fully offline with zero API keys, using a local SQLite database and a clearly labelled **DEMO / SYNTHETIC** scenario: a synthetic refinery with an established baseline and an escalating current event, a stable steel plant matching its own baseline, a chemical plant with INSUFFICIENT history, a mining site engineered to produce a genuinely low-confidence/ambiguous ML+evidence read (so the system can demonstrate "requires analyst validation" rather than forcing a verdict), and an unassociated agricultural-fire-shaped event with no nearby facility. Nothing about the demo data is presented as a real NASA observation.
 
 ### Backend
 

@@ -14,7 +14,7 @@ def test_train_and_evaluate_produces_metrics_with_proxy_label_caveats():
     assert metrics.is_proxy_label_model is True
     assert len(metrics.caveats) >= 2
     assert set(metrics.precision.keys()) == {CLASS_A, CLASS_B}
-    assert metrics.split_strategy.startswith("geographic_holdout")
+    assert metrics.split_strategy.startswith("random_holdout")
 
 
 def test_prediction_probabilities_sum_to_one():

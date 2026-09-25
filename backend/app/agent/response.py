@@ -32,11 +32,12 @@ def explain_risk_text(investigation: dict) -> str:
 
 
 def build_event_card(event: dict) -> ResultCard:
-    return ResultCard(
-        type="event", title=event["event_id"],
-        subtitle=f"{event.get('severity') or 'UNSCORED'} - risk {event.get('risk_score') or 0:.0f}",
-        data=event,
-    )
+    parts = [f"{event.get('severity') or 'UNSCORED'} - risk {event.get('risk_score') or 0:.0f}"]
+    if event.get("trajectory_direction"):
+        parts.append(str(event["trajectory_direction"]))
+    if event.get("deviation_label") and event["deviation_label"] != "UNAVAILABLE":
+        parts.append(f"deviation {event['deviation_label']}")
+    return ResultCard(type="event", title=event["event_id"], subtitle=" · ".join(parts), data=event)
 
 
 def ui_action_for_event(event_id: str) -> UIAction:
@@ -45,3 +46,10 @@ def ui_action_for_event(event_id: str) -> UIAction:
 
 def ui_action_for_facility(facility_id: str) -> UIAction:
     return UIAction(action="open_facility", target_id=facility_id)
+
+
+def build_incident_card(incident: dict) -> ResultCard:
+    parts = [incident.get("record_kind_label", ""), incident.get("date", ""), incident.get("state", ""), "HISTORICAL"]
+    if incident.get("distance_km") is not None:
+        parts.append(f"{incident['distance_km']} km away")
+    return ResultCard(type="incident", title=incident["incident_id"], subtitle=" · ".join(p for p in parts if p), data=incident)

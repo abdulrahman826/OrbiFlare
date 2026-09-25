@@ -151,6 +151,57 @@ def run_query(db: Session, message: str) -> AgentResponse:
         text = f"{len(events)} active event(s) show persistent thermal activity (6+ observations)." if events else "No events currently meet the persistent-activity threshold."
         cards = [resp_mod.build_event_card(e) for e in events[:5]]
 
+    elif parsed.intent == "list_historical_incidents":
+        items = tools.list_historical_incidents(db, state=parsed.state)
+        record("list_historical_incidents", {"state": parsed.state}, items)
+        if items:
+            text = (f"{len(items)} HISTORICAL reference incident(s)" + (f" in {parsed.state}" if parsed.state else "")
+                    + ". These are curated historical records -- not FIRMS detections and not live alerts.")
+        else:
+            text = "No historical reference incidents match."
+        cards = [resp_mod.build_incident_card(i) for i in items[:8]]
+
+    elif parsed.intent == "get_historical_incident":
+        iid = parsed.incident_ids[0]
+        ctx = tools.get_historical_incident(db, iid)
+        record("get_historical_incident", {"incident_id": iid}, ctx)
+        if ctx is None:
+            text = f"I could not find historical incident {iid}."
+        else:
+            inc = ctx["incident"]
+            text = (f"{iid} ({inc['record_kind_label']}, {inc['date']}, {inc['state']}): {inc['name']}. "
+                    f"HISTORICAL reference record -- not a FIRMS detection. {ctx['firms_match']['note']} {ctx['unknown'][0]}")
+            cards.append(resp_mod.build_incident_card(inc))
+            ui_action = UIAction(action="open_incident", target_id=iid)
+
+    elif parsed.intent in ("find_incidents_near_event", "find_incidents_near_facility"):
+        if parsed.intent == "find_incidents_near_event":
+            tid = parsed.event_ids[0]
+            res = tools.find_incidents_near_event(db, tid)
+            record("find_incidents_near_event", {"event_id": tid}, res)
+            ui_action = resp_mod.ui_action_for_event(tid) if res else None
+        else:
+            tid = parsed.facility_ids[0]
+            res = tools.find_incidents_near_facility(db, tid)
+            record("find_incidents_near_facility", {"facility_id": tid}, res)
+            ui_action = resp_mod.ui_action_for_facility(tid) if res else None
+        if res is None:
+            text = f"I could not find {tid}."
+        else:
+            n = len(res["incidents"])
+            if n:
+                text = f"{n} historical reference incident(s) within {res['radius_km']:g} km of {tid}. Proximity to a historical record is context only, not causation."
+            else:
+                text = f"No historical reference incidents within {res['radius_km']:g} km of {tid}."
+            cards = [resp_mod.build_incident_card(i) for i in res["incidents"][:8]]
+
+    elif parsed.intent == "list_insufficient_baseline_events":
+        events = tools.list_insufficient_baseline_events(db)
+        record("list_insufficient_baseline_events", {}, events)
+        text = (f"{len(events)} event(s) have an INSUFFICIENT facility baseline, so behavioural deviation cannot be assessed for them."
+                if events else "Every event currently has at least a limited facility baseline.")
+        cards = [resp_mod.build_event_card(e) for e in events[:5]]
+
     elif parsed.intent == "facility_event_frequency":
         ranking = tools.facility_event_frequency(db)
         record("facility_event_frequency", {}, ranking)

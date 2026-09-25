@@ -64,7 +64,7 @@ def test_replay_endpoint_returns_ordered_frames(client):
 def test_facilities_list(client):
     resp = client.get("/api/facilities")
     assert resp.status_code == 200
-    assert len(resp.json()) == 3
+    assert len(resp.json()) == 4
 
 
 def test_facility_thermal_twin(client):
@@ -156,6 +156,16 @@ def test_analytics_overview(client):
     resp = client.get("/api/analytics/overview")
     assert resp.status_code == 200
     assert "total_events" in resp.json()
+
+
+def test_analytics_data_quality_reports_coordinate_validation_honestly(client):
+    resp = client.get("/api/analytics/data-quality")
+    assert resp.status_code == 200
+    body = resp.json()
+    cv = body["coordinate_validation"]
+    assert cv["total_observations"] == cv["in_region_count"] + cv["outside_region_count"]
+    assert "not administrative boundaries" in cv["region_bbox"]["label"]
+    assert isinstance(body["ingestion_batches"], list)
 
 
 def test_reports_csv_download(client):

@@ -34,4 +34,5 @@ def get_facility_twin(facility_id: str, db: Session = Depends(get_db)) -> dict:
 @router.get("/{facility_id}/events")
 def get_facility_events(facility_id: str, db: Session = Depends(get_db)) -> list[dict]:
     rows = repo.list_events(db, facility_id=facility_id)
-    return [repo.event_to_schema(r).model_dump(mode="json") for r in rows]
+    events = repo.attach_derived_event_fields(db, [repo.event_to_schema(r) for r in rows])
+    return [e.model_dump(mode="json") for e in events]
