@@ -128,25 +128,25 @@ def run_query(db: Session, message: str) -> AgentResponse:
             cards.append(ResultCard(type="comparison", title="Facility comparison", data=cmp))
 
     elif parsed.intent == "list_high_risk_events":
-        events = tools.list_high_risk_events(db)
+        events = tools.list_high_risk_events(db, limit=None)   # full list: the answer states the true count, cards show the top 5
         record("list_high_risk_events", {}, events)
         text = f"{len(events)} high/critical risk event(s) currently." if events else "No high or critical risk events right now."
         cards = [resp_mod.build_event_card(e) for e in events[:5]]
 
     elif parsed.intent == "list_escalating_events":
-        events = tools.list_escalating_events(db)
+        events = tools.list_escalating_events(db, limit=None)
         record("list_escalating_events", {}, events)
         text = f"{len(events)} event(s) currently show an ESCALATING risk trajectory." if events else "No events are currently escalating."
         cards = [resp_mod.build_event_card(e) for e in events[:5]]
 
     elif parsed.intent == "list_events":
-        events = tools.list_events(db, severity=parsed.severity)
+        events = tools.list_events(db, severity=parsed.severity, limit=None)
         record("list_events", {"severity": parsed.severity}, events)
         text = f"Found {len(events)} event(s)" + (f" with severity {parsed.severity}" if parsed.severity else "") + "."
         cards = [resp_mod.build_event_card(e) for e in events[:5]]
 
     elif parsed.intent == "list_persistent_events":
-        events = tools.list_persistent_events(db)
+        events = tools.list_persistent_events(db, limit=None)
         record("list_persistent_events", {}, events)
         text = f"{len(events)} active event(s) show persistent thermal activity (6+ observations)." if events else "No events currently meet the persistent-activity threshold."
         cards = [resp_mod.build_event_card(e) for e in events[:5]]
@@ -196,7 +196,7 @@ def run_query(db: Session, message: str) -> AgentResponse:
             cards = [resp_mod.build_incident_card(i) for i in res["incidents"][:8]]
 
     elif parsed.intent == "list_insufficient_baseline_events":
-        events = tools.list_insufficient_baseline_events(db)
+        events = tools.list_insufficient_baseline_events(db, limit=None)
         record("list_insufficient_baseline_events", {}, events)
         text = (f"{len(events)} event(s) have an INSUFFICIENT facility baseline, so behavioural deviation cannot be assessed for them."
                 if events else "Every event currently has at least a limited facility baseline.")

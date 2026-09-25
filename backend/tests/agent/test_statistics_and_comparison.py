@@ -143,3 +143,15 @@ def test_compare_event_to_baseline_never_fabricates_missing_dimension_values(db_
 
 def test_compare_event_to_baseline_unknown_event_returns_none(db_session):
     assert tools.compare_event_to_baseline(db_session, "EVT-NOPE") is None
+
+
+def test_list_answers_state_the_true_count_not_the_display_cap(db_session):
+    """Regression: "N event(s) escalating" used the tool's display cap (10) as the count."""
+    for i in range(14):
+        _seed_event(db_session, f"ESC{i}", trajectory=TrajectoryDirection.ESCALATING, risk=50.0 - i)
+    db_session.commit()
+    assert len(tools.list_escalating_events(db_session)) == 10                  # default display cap unchanged
+    assert len(tools.list_escalating_events(db_session, limit=None)) == 14      # the full list, used to state the count
+    from app.agent import runtime
+    resp = runtime.run_query(db_session, "show escalating events")
+    assert "14 event(s)" in resp.text and len(resp.result_cards) == 5

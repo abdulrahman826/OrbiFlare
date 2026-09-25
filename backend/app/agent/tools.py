@@ -16,26 +16,26 @@ from app.reporting.incident_report import build_incident_report
 from app.storage import repositories as repo
 
 
-def list_events(db: Session, severity: str | None = None, status: str | None = None, limit: int = 20) -> list[dict]:
+def list_events(db: Session, severity: str | None = None, status: str | None = None, limit: int | None = 20) -> list[dict]:
     rows = repo.list_events(db, severity=severity, status=status)
     events = repo.attach_derived_event_fields(db, [repo.event_to_schema(r) for r in rows[:limit]])
     return [_event_summary(e) for e in events]
 
 
-def list_high_risk_events(db: Session, limit: int = 10) -> list[dict]:
+def list_high_risk_events(db: Session, limit: int | None = 10) -> list[dict]:
     rows = repo.list_events(db)
     events = sorted((repo.event_to_schema(r) for r in rows), key=lambda e: e.risk_score or 0, reverse=True)
     high_risk = [e for e in events if (e.severity and e.severity.value in ("HIGH", "CRITICAL"))][:limit]
     return [_event_summary(e) for e in repo.attach_derived_event_fields(db, high_risk)]
 
 
-def list_escalating_events(db: Session, limit: int = 10) -> list[dict]:
+def list_escalating_events(db: Session, limit: int | None = 10) -> list[dict]:
     rows = repo.list_events(db, trajectory="ESCALATING")
     events = repo.attach_derived_event_fields(db, [repo.event_to_schema(r) for r in rows[:limit]])
     return [_event_summary(e) for e in events]
 
 
-def list_insufficient_baseline_events(db: Session, limit: int = 10) -> list[dict]:
+def list_insufficient_baseline_events(db: Session, limit: int | None = 10) -> list[dict]:
     """Events whose facility Thermal Twin has INSUFFICIENT history (or that have no facility
     baseline at all) -- i.e. events for which behavioural deviation cannot be assessed."""
     rows = repo.list_events(db)
@@ -178,7 +178,7 @@ def generate_report(db: Session, event_id: str) -> dict | None:
 PERSISTENT_OBSERVATION_THRESHOLD = 6
 
 
-def list_persistent_events(db: Session, limit: int = 10) -> list[dict]:
+def list_persistent_events(db: Session, limit: int | None = 10) -> list[dict]:
     rows = repo.list_events(db)
     events = [repo.event_to_schema(r) for r in rows if r.status != "EXTINGUISHED"]
     persistent = sorted(
