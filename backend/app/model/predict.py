@@ -4,6 +4,7 @@ training step to start) and exposes a typed predict() over FeatureVector.
 """
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 from threading import Lock
 
@@ -17,10 +18,34 @@ try:
 except ImportError:  # pragma: no cover
     joblib = None
 
+logger = logging.getLogger("orbiflare.model")
 settings = get_settings()
 _lock = Lock()
 _models: dict[str, object] = {}
 FULL, NO_FACILITY = "full", "no_facility"
+
+
+def _load_artifacts(artifacts: dict[str, Path]) -> bool:
+    """Best-effort load of the on-disk model artifacts into `_models`.
+
+    Returns False if any artifact is missing OR unreadable. A corrupt/truncated file (e.g. left behind by a process
+    that was killed mid-write during a previous save -- `joblib.dump` is not atomic) must never crash the caller:
+    that previously took down the entire FIRMS refresh (observations included, since ingestion and re-classification
+    share one transaction) with an unrelated I/O fault. On any read failure the bad file(s) are removed so the
+    caller's retrain-and-retry actually gets a clean slate instead of hitting the same corrupt file again."""
+    if joblib is None or not all(p.exists() for p in artifacts.values()):
+        return False
+    loaded: dict[str, object] = {}
+    for key, path in artifacts.items():
+        try:
+            loaded[key] = joblib.load(path)
+        except Exception:
+            logger.warning("Model artifact %s is unreadable; removing it and retraining.", path, exc_info=True)
+            for p in artifacts.values():
+                p.unlink(missing_ok=True)
+            return False
+    _models.update(loaded)
+    return True
 
 
 def _get_model(variant: str = FULL):
@@ -31,13 +56,9 @@ def _get_model(variant: str = FULL):
         if variant in _models:
             return _models[variant]
         artifacts = {FULL: Path(settings.model_artifact_path), NO_FACILITY: no_facility_artifact_path()}
-        if joblib is not None and all(p.exists() for p in artifacts.values()):
-            _models.update({k: joblib.load(p) for k, p in artifacts.items()})
-        else:
+        if not _load_artifacts(artifacts):
             train_and_evaluate(save=True)
-            if joblib is not None and all(p.exists() for p in artifacts.values()):
-                _models.update({k: joblib.load(p) for k, p in artifacts.items()})
-            else:  # pragma: no cover - joblib unavailable: train in memory
+            if not _load_artifacts(artifacts):  # pragma: no cover - joblib unavailable: train in memory
                 raise RuntimeError("Model artifacts could not be created")
     return _models[variant]
 

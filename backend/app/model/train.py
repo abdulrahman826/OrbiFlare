@@ -100,6 +100,16 @@ def no_facility_artifact_path() -> Path:
     return base.with_name(base.stem + "_no_facility" + base.suffix)
 
 
+def _atomic_dump(obj, path: Path) -> None:
+    """joblib.dump writes straight to `path`; if the process is killed or crashes mid-write (OOM, restart, deploy),
+    that leaves a truncated file at the real path, which a later joblib.load fails on with an EOFError. Writing to a
+    sibling temp file and renaming it into place is atomic on both POSIX and Windows, so a save either fully lands
+    or leaves the previous (or no) artifact -- never a corrupt one."""
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    joblib.dump(obj, tmp)
+    tmp.replace(path)
+
+
 def _fit(X, y):
     return RandomForestClassifier(n_estimators=200, max_depth=8, min_samples_leaf=5, class_weight="balanced", random_state=42).fit(X, y)
 
@@ -180,8 +190,8 @@ def train_and_evaluate(save: bool = True) -> tuple[RandomForestClassifier, Evalu
 
     if save and joblib is not None:
         settings.data_dir.mkdir(parents=True, exist_ok=True)
-        joblib.dump(clf, settings.model_artifact_path)
-        joblib.dump(clf_nf, no_facility_artifact_path())
+        _atomic_dump(clf, Path(settings.model_artifact_path))
+        _atomic_dump(clf_nf, no_facility_artifact_path())
         with open(settings.data_dir / "rf_metrics.json", "w", encoding="utf-8") as f:
             json.dump(metrics.model_dump(), f, indent=2)
 
