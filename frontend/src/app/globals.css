@@ -3,12 +3,12 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 html, body {
-  background-color: #F5F1E8;
-  color: #1F2421;
+  background-color: #191714;
+  color: #D6C3A0;
 }
 
 body {
@@ -17,17 +17,17 @@ body {
 }
 
 ::selection {
-  background: rgba(47, 74, 58, 0.22);
+  background: rgba(182, 154, 106, 0.25);
 }
 
 :focus-visible {
-  outline: 2px solid #2F4A3A;
+  outline: 2px solid #B9B6A8;
   outline-offset: 1px;
 }
 
 .scrollbar-thin::-webkit-scrollbar { width: 8px; height: 8px; }
-.scrollbar-thin::-webkit-scrollbar-track { background: #EDE8DA; }
-.scrollbar-thin::-webkit-scrollbar-thumb { background: #C2BAA5; border-radius: 3px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: #201D18; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: #5A5449; border-radius: 3px; }
 
 /* Shared, compact, rectangular controls (dark = primary action, light = secondary). */
 @layer components {
@@ -46,17 +46,17 @@ body {
 .maplibregl-popup { z-index: 30; max-width: 300px !important; }
 .orbiflare-tip .maplibregl-popup-content { padding: 5px 8px; }
 .maplibregl-popup-content { max-height: 320px; overflow-y: auto;
-  background: #FBF9F3 !important;
-  color: #1F2421 !important;
-  border: 1px solid #C2BAA5 !important;
+  background: #29251E !important;
+  color: #D6C3A0 !important;
+  border: 1px solid #5A5449 !important;
   border-radius: 3px !important;
   box-shadow: none !important;
   padding: 8px 10px !important;
 }
-.maplibregl-popup-tip { border-top-color: #C2BAA5 !important; border-bottom-color: #C2BAA5 !important; }
+.maplibregl-popup-tip { border-top-color: #5A5449 !important; border-bottom-color: #5A5449 !important; }
 .maplibregl-ctrl-attrib { font-size: 10px; }
-.maplibregl-ctrl-group { border-radius: 3px !important; box-shadow: none !important; border: 1px solid #C2BAA5; }
+.maplibregl-ctrl-group { border-radius: 3px !important; box-shadow: none !important; border: 1px solid #5A5449; }
 
-/* Restrained basemap: keep OSM readable but mute it to warm greys. Markers/popups are DOM and unaffected. */
-.orbiflare-map { background: #E9E4D6; }
-/* basemap desaturation is done inside the raster layer (MapPanel), so event/facility colours are never filtered */
+/* Restrained basemap: a dark, muted GIS console tone. Markers/popups are DOM/vector and unaffected. */
+.orbiflare-map { background: #171410; }
+/* basemap desaturation + darkening is done inside the raster layer (MapPanel), so event/facility colours are never filtered */

@@ -13,13 +13,14 @@ export const INTERP_LABEL: Record<SourceInterpretationClass, string> = {
   NATURAL_OTHER_THERMAL_SOURCE_CANDIDATE: "Natural / other thermal-source candidate",
   UNCERTAIN: "Uncertain",
 };
-// Restrained palette (no rainbow): muted amber-brown, muted green, muted teal, muted blue, neutral light grey. None of these is used for priority.
+// Restrained industrial palette (no rainbow): terracotta (thermal/industrial), a darker terracotta-brown (persistent), muted olive
+// (vegetation), neutral silver-grey (natural/other), pale neutral (uncertain). None of these is used for priority.
 export const INTERP_HEX: Record<SourceInterpretationClass, { fill: string; text: string }> = {
-  INDUSTRIAL_SOURCE_CANDIDATE: { fill: "#8a5a1c", text: "#ffffff" },
-  AGRICULTURAL_VEGETATION_CANDIDATE: { fill: "#7c9a5e", text: "#ffffff" },
-  PERSISTENT_THERMAL_SOURCE_CANDIDATE: { fill: "#2f7f7a", text: "#ffffff" },
-  NATURAL_OTHER_THERMAL_SOURCE_CANDIDATE: { fill: "#6f8bab", text: "#ffffff" },
-  UNCERTAIN: { fill: "#e2dfd3", text: "#3a3d36" },
+  INDUSTRIAL_SOURCE_CANDIDATE: { fill: "#A9573C", text: "#F5EFE4" },
+  AGRICULTURAL_VEGETATION_CANDIDATE: { fill: "#7C8A5A", text: "#191714" },
+  PERSISTENT_THERMAL_SOURCE_CANDIDATE: { fill: "#7C402C", text: "#F5EFE4" },
+  NATURAL_OTHER_THERMAL_SOURCE_CANDIDATE: { fill: "#7D7A6E", text: "#191714" },
+  UNCERTAIN: { fill: "#C9C2B0", text: "#29251E" },
 };
 export const SEVERITY_TEXT: Record<string, string> = { LOW: "Low", MEDIUM: "Medium", HIGH: "High", CRITICAL: "Critical" };
 
@@ -65,10 +66,12 @@ export function popupHtml(e: ThermalEvent, facilityName?: string): string {
     <div style="margin-top:5px"><a href="/investigation/${esc(e.event_id)}" style="font-weight:700;text-decoration:underline">Open investigation &rarr;</a></div></div>`;
 }
 
-/** Operational priority = the OUTER RING only (colour + thickness, never a letter): charcoal thin (LOW), gold medium (MEDIUM), strong red/orange thick (HIGH / CRITICAL). */
+/** Operational priority = the OUTER RING only (colour + thickness, never a letter): olive thin (LOW), desert-bronze medium (MEDIUM), bright
+ * terracotta thick (HIGH), warm red thick (CRITICAL). HIGH uses the *bright* terracotta tint rather than the base tone so its ring never
+ * disappears into an Industrial-candidate fill, which uses the base tone -- fill and ring must stay two visibly separate channels. */
 export const SEVERITY_RING: Record<string, { color: string; px: number; rank: number; radius: number }> = {
-  LOW: { color: "#3a3d36", px: 1.5, rank: 0, radius: 3.75 }, MEDIUM: { color: "#c99a1c", px: 2.5, rank: 1, radius: 4 },
-  HIGH: { color: "#c2410c", px: 3, rank: 2, radius: 5 }, CRITICAL: { color: "#b91c1c", px: 3, rank: 3, radius: 5 },
+  LOW: { color: "#5C5F49", px: 1.5, rank: 0, radius: 3.75 }, MEDIUM: { color: "#B69A6A", px: 2.5, rank: 1, radius: 4 },
+  HIGH: { color: "#C5775D", px: 3, rank: 2, radius: 5 }, CRITICAL: { color: "#CD4E3B", px: 3, rank: 3, radius: 5 },
 };
 
 /** Event marker encoding: FILL comes only from the source interpretation; RING (colour, thickness) only from the operational priority. No text in markers. */

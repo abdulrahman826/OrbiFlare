@@ -2,6 +2,7 @@
 
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { TrajectoryBadge } from "@/components/TrajectoryBadge";
+import { CHART, TOOLTIP_STYLE } from "@/lib/chartTheme";
 import type { RiskTrajectory } from "@/types/domain";
 
 export function RiskTrajectoryChart({ trajectory }: { trajectory: RiskTrajectory }) {
@@ -10,6 +11,10 @@ export function RiskTrajectoryChart({ trajectory }: { trajectory: RiskTrajectory
     risk: p.risk_score,
     time: new Date(p.timestamp).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }),
   }));
+  // Terracotta is reserved for things that deserve attention -- an escalating trajectory is exactly that. Any other direction
+  // (increasing/stable/decreasing/insufficient data) keeps the routine desert tone. This only recolours the line; the
+  // direction itself is still whatever the backend computed.
+  const lineColor = trajectory.direction === "ESCALATING" ? CHART.secondary : CHART.primary;
 
   return (
     <div>
@@ -22,15 +27,15 @@ export function RiskTrajectoryChart({ trajectory }: { trajectory: RiskTrajectory
           <AreaChart data={data} margin={{ left: -20, right: 8, top: 4, bottom: 0 }}>
             <defs>
               <linearGradient id="riskFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#2F4A3A" stopOpacity={0.18} />
-                <stop offset="100%" stopColor="#2F4A3A" stopOpacity={0} />
+                <stop offset="0%" stopColor={lineColor} stopOpacity={0.22} />
+                <stop offset="100%" stopColor={lineColor} stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#DAD3C2" vertical={false} />
-            <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#6C7065" }} axisLine={{ stroke: "#C2BAA5" }} tickLine={false} />
-            <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: "#6C7065" }} axisLine={false} tickLine={false} width={28} />
-            <Tooltip contentStyle={{ background: "#FBF9F3", border: "1px solid #C2BAA5", fontSize: 11 }} />
-            <Area type="monotone" dataKey="risk" stroke="#2F4A3A" strokeWidth={2} fill="url(#riskFill)" isAnimationActive={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART.grid} vertical={false} />
+            <XAxis dataKey="time" tick={{ fontSize: 10, fill: CHART.tickText }} axisLine={{ stroke: CHART.axisLine }} tickLine={false} />
+            <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: CHART.tickText }} axisLine={false} tickLine={false} width={28} />
+            <Tooltip contentStyle={TOOLTIP_STYLE} />
+            <Area type="monotone" dataKey="risk" stroke={lineColor} strokeWidth={2} fill="url(#riskFill)" isAnimationActive={false} />
           </AreaChart>
         </ResponsiveContainer>
       </div>

@@ -68,7 +68,7 @@ describe("uncertain styling", () => {
     const radius = layer.paint["circle-radius"] as unknown[];
     expect(radius[4]).toBeLessThanOrEqual(1.5);
     expect(layer.paint["circle-stroke-width"]).toBeUndefined();
-    expect(layer.paint["circle-color"]).toBe("#9d9a8e");
+    expect(layer.paint["circle-color"]).toBe("#A8A28C");
   });
   it("uncertain LOW faint dots are still clickable event layers, drawn below interpreted/priority events", () => {
     const l = getMapStyle().layers.map((x) => x.id);
@@ -90,7 +90,7 @@ describe("uncertain styling", () => {
     expect(a.ringColor).toBe(c.ringColor);
     expect(a.fill).not.toBe(c.fill);
     expect(b.faint).toBe(false);
-    expect(b.ringColor).toBe("#3a3d36");
+    expect(b.ringColor).toBe("#5C5F49");
   });
   it("8. no marker contains letters: no text layer, no letter in the marker style", () => {
     expect(JSON.stringify(getMapStyle().layers)).not.toMatch(/text-field|symbol-letter/);

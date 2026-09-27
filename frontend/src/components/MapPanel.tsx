@@ -12,8 +12,8 @@ import type { AdminFeatureCollection, Facility, HistoricalIncident, IncidentKind
 /** Operational-priority ring colours (used by GIS filters and the map key). Fill colours are NEVER taken from this palette. */
 export const SEVERITY_HEX: Record<string, string> = Object.fromEntries(Object.entries(SEVERITY_RING).map(([k, v]) => [k, v.color]));
 
-/** Historical reference incidents have their OWN identity (blue diamond) so they can never be mistaken for live events. */
-export const INCIDENT_HEX = "#3b4f8f";
+/** Historical reference incidents have their OWN identity (muted slate diamond) so they can never be mistaken for live events. */
+export const INCIDENT_HEX = "#5C6A78";
 export const INCIDENT_LETTER: Record<IncidentKind, string> = {
   REPORTED_INDUSTRIAL_INCIDENT: "R",
   PERSISTENT_THERMAL_SOURCE_REFERENCE: "P",
@@ -27,7 +27,7 @@ const esc = (v: unknown) =>
 const FIRMS_CONF: Record<string, string> = { l: "low", n: "nominal", h: "high" };
 const EMPTY_FC = { type: "FeatureCollection", features: [] } as const;
 const FAC_ICON = "fac-square";
-const NEUTRAL_FILL = "#e2dfd3";
+const NEUTRAL_FILL = "#C9C2B0";
 
 // Event radius (centre) in px by priority, growing gently with zoom. Ring width comes from the feature. Numbers: 3.75-5 px radius = 7.5-10 px centre.
 const EVENT_BASE_RADIUS = ["match", ["get", "sev"], "CRITICAL", 5, "HIGH", 5, "MEDIUM", 4, 3.75];
@@ -48,20 +48,20 @@ export function getMapStyle(): StyleSpecification {
       events: { type: "geojson", data: EMPTY_FC as never },
     },
     layers: [
-      { id: "osm-layer", type: "raster", source: "osm", paint: { "raster-saturation": -0.78, "raster-contrast": -0.12, "raster-brightness-min": 0.06, "raster-brightness-max": 0.97, "raster-opacity": 0.85 } },
-      { id: "admin-fill", type: "fill", source: "admin", layout: { visibility: "none" }, paint: { "fill-color": "#4a4d44", "fill-opacity": 0.03 } },
-      { id: "admin-line", type: "line", source: "admin", layout: { visibility: "none" }, paint: { "line-color": "#4a4d44", "line-width": 0.7, "line-opacity": 0.4 } },
+      { id: "osm-layer", type: "raster", source: "osm", paint: { "raster-saturation": -0.85, "raster-contrast": 0.05, "raster-brightness-min": 0, "raster-brightness-max": 0.38, "raster-opacity": 0.9 } },
+      { id: "admin-fill", type: "fill", source: "admin", layout: { visibility: "none" }, paint: { "fill-color": "#C9C5B6", "fill-opacity": 0.04 } },
+      { id: "admin-line", type: "line", source: "admin", layout: { visibility: "none" }, paint: { "line-color": "#C9C5B6", "line-width": 0.7, "line-opacity": 0.35 } },
       // 5. Raw FIRMS observations: tiny, low-opacity dots (subordinate to everything above them). No ring, no text.
       {
         id: "obs-circles", type: "circle", source: "obs",
-        paint: { "circle-radius": ["interpolate", ["linear"], ["zoom"], 3, 1, 10, 2.2], "circle-opacity": 0.4, "circle-color": ["case", ["get", "demo"], "#A39C88", "#1F2421"] },
+        paint: { "circle-radius": ["interpolate", ["linear"], ["zoom"], 3, 1, 10, 2.2], "circle-opacity": 0.5, "circle-color": ["case", ["get", "demo"], "#8A7350", "#D6C3A0"] },
       },
       // 5b. Uncertain LOW events: tiny, faint, neutral background dots (no ring, no colour). They fade in as the user zooms in.
       {
         id: "event-faint", type: "circle", source: "events", filter: ["==", ["get", "faint"], true],
         paint: {
           "circle-radius": ["interpolate", ["linear"], ["zoom"], 3, 1.2, 7, 1.7, 10, 3],
-          "circle-color": "#9d9a8e",
+          "circle-color": "#A8A28C",
           "circle-opacity": ["interpolate", ["linear"], ["zoom"], 3, 0.22, 6, 0.3, 9, 0.6, 12, 0.85],
         },
       },
@@ -73,7 +73,7 @@ export function getMapStyle(): StyleSpecification {
           "circle-color": ["get", "fill"], "circle-stroke-color": ["get", "ring"], "circle-stroke-width": ["get", "ringPx"], "circle-opacity": 1, "circle-stroke-opacity": 1,
         },
       },
-      { id: "event-highlight", type: "circle", source: "events", filter: ["==", ["get", "id"], ""], paint: { "circle-radius": 11, "circle-color": "rgba(0,0,0,0)", "circle-stroke-color": "#1f2421", "circle-stroke-width": 2 } },
+      { id: "event-highlight", type: "circle", source: "events", filter: ["==", ["get", "id"], ""], paint: { "circle-radius": 11, "circle-color": "rgba(0,0,0,0)", "circle-stroke-color": "#EDE7D8", "circle-stroke-width": 2 } },
     ],
   };
 }
@@ -145,8 +145,8 @@ function facilitySquare(): ImageData | null {
   c.width = c.height = 12;
   const g = c.getContext("2d");
   if (!g) return null;
-  g.fillStyle = "#fbf9f3"; g.fillRect(0, 0, 12, 12);
-  g.fillStyle = "#5a5d54"; g.fillRect(1.5, 1.5, 9, 9);
+  g.fillStyle = "#B9B6A8"; g.fillRect(0, 0, 12, 12);
+  g.fillStyle = "#3A3C2F"; g.fillRect(1.5, 1.5, 9, 9);
   return g.getImageData(0, 0, 12, 12);
 }
 
@@ -366,14 +366,14 @@ export function MapPanel({
           const el = document.createElement("div");
           Object.assign(el.style, { width: "14px", height: "14px", display: "flex", alignItems: "center", justifyContent: "center" });
           const diamond = document.createElement("div");
-          Object.assign(diamond.style, { width: "11px", height: "11px", transform: "rotate(45deg)", background: INCIDENT_HEX, border: "1.5px solid #fbf9f3", boxShadow: "0 0 0 1px rgba(31,36,33,0.55)" });
+          Object.assign(diamond.style, { width: "11px", height: "11px", transform: "rotate(45deg)", background: INCIDENT_HEX, border: "1.5px solid #29251E", boxShadow: "0 0 0 1px rgba(185,182,168,0.55)" });
           el.appendChild(diamond);
           el.setAttribute("aria-label", `Historical incident ${i.incident_id}: ${i.name}`);
           el.style.cursor = "pointer";
           el.setAttribute("role", "link");
           el.addEventListener("click", () => router.push(`/incidents/${i.incident_id}`));
           const marker = new Marker({ element: el }).setLngLat([i.longitude, i.latitude])
-            .setPopup(new Popup({ offset: 10 }).setHTML(`<div style="font-size:12px"><b>${esc(i.name)}</b><br/>${esc(i.record_kind_label)} &middot; ${esc(i.date)}<br/>${esc(i.state)}<br/><b style="color:#3b4f8f">HISTORICAL &middot; not a FIRMS detection</b><br/><span style="opacity:.7">approximate location &middot; click for context</span></div>`)).addTo(map);
+            .setPopup(new Popup({ offset: 10 }).setHTML(`<div style="font-size:12px"><b>${esc(i.name)}</b><br/>${esc(i.record_kind_label)} &middot; ${esc(i.date)}<br/>${esc(i.state)}<br/><b style="color:#5C6A78">HISTORICAL &middot; not a FIRMS detection</b><br/><span style="opacity:.7">approximate location &middot; click for context</span></div>`)).addTo(map);
           markersRef.current.push(marker);
         }
       };

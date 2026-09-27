@@ -22,7 +22,7 @@ describe("map classification", () => {
   it("has five distinct candidate classes with distinct fills; uncertain is light; no class is called a fire", () => {
     expect(INTERP_ORDER).toHaveLength(5);
     expect(new Set(INTERP_ORDER.map((c) => INTERP_HEX[c].fill)).size).toBe(5);
-    expect(INTERP_HEX.UNCERTAIN.fill).toBe("#e2dfd3");
+    expect(INTERP_HEX.UNCERTAIN.fill).toBe("#C9C2B0");
     for (const c of INTERP_ORDER) expect(INTERP_LABEL[c]).not.toMatch(/industrial fire|agricultural fire|natural fire|confirmed/i);
   });
   it("an event without an interpretation is Uncertain, never a guessed class", () => {
@@ -193,22 +193,25 @@ import { declutter } from "@/lib/declutter";
 import { INTERP_HEX as HEX } from "@/lib/interpretation";
 
 describe("visual model: exact channels", () => {
-  it("every marker sample class follows the agreed palette: amber-brown / green / teal / blue / light grey fills", () => {
+  it("every marker sample class follows the agreed industrial palette: terracotta / olive / dark terracotta-brown / neutral silver / pale neutral fills", () => {
     const rgb = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
     const [ir, ig, ib] = rgb(HEX.INDUSTRIAL_SOURCE_CANDIDATE.fill);
-    expect(ir).toBeGreaterThan(ig); expect(ig).toBeGreaterThan(ib);                         // amber / brown family
+    expect(ir).toBeGreaterThan(ig); expect(ig).toBeGreaterThan(ib);                         // terracotta (warm orange-brown)
     const [ar, ag, ab] = rgb(HEX.AGRICULTURAL_VEGETATION_CANDIDATE.fill);
-    expect(ag).toBeGreaterThan(ar); expect(ag).toBeGreaterThan(ab);                         // green
+    expect(ag).toBeGreaterThan(ar); expect(ag).toBeGreaterThan(ab);                         // olive green
     const [tr, tg, tb] = rgb(HEX.PERSISTENT_THERMAL_SOURCE_CANDIDATE.fill);
-    expect(tr).toBeLessThan(tg); expect(tr).toBeLessThan(tb);                               // teal (green-blue)
-    const [nr, , nb] = rgb(HEX.NATURAL_OTHER_THERMAL_SOURCE_CANDIDATE.fill);
-    expect(nb).toBeGreaterThan(nr);                                                          // blue
+    expect(tr).toBeGreaterThan(tg); expect(tg).toBeGreaterThan(tb);                         // dark terracotta-brown -- same family as industrial, but darker/more muted
+    expect(tr).toBeLessThan(ir);                                                            // distinctly darker than industrial, so the two never read as identical
+    const [nr, ng, nb] = rgb(HEX.NATURAL_OTHER_THERMAL_SOURCE_CANDIDATE.fill);
+    const naturalSpread = Math.max(nr, ng, nb) - Math.min(nr, ng, nb);
+    expect(naturalSpread).toBeLessThan(20);                                                 // neutral silver-grey (low colour saturation)
     const [ur, ug, ub] = rgb(HEX.UNCERTAIN.fill);
-    expect(Math.min(ur, ug, ub)).toBeGreaterThan(200);                                      // light neutral grey
+    expect(Math.min(ur, ug, ub)).toBeGreaterThan(150);                                      // the lightest, most desaturated fill of the five
+    expect(Math.min(ur, ug, ub)).toBeGreaterThan(Math.min(nr, ng, nb));                      // uncertain reads lighter than natural/other, not just different
   });
-  it("rings: LOW dark charcoal and thin, MEDIUM gold and medium, HIGH/CRITICAL red-orange and thickest", () => {
-    expect(SEVERITY_RING.LOW.color).toBe("#3a3d36");
-    expect(SEVERITY_RING.MEDIUM.color).toBe("#c99a1c");
+  it("rings: LOW muted olive and thin, MEDIUM desert-bronze and medium, HIGH/CRITICAL terracotta/red and thickest", () => {
+    expect(SEVERITY_RING.LOW.color).toBe("#5C5F49");
+    expect(SEVERITY_RING.MEDIUM.color).toBe("#B69A6A");
     expect(SEVERITY_RING.HIGH.px).toBeGreaterThan(SEVERITY_RING.MEDIUM.px);
     expect(SEVERITY_RING.MEDIUM.px).toBeGreaterThan(SEVERITY_RING.LOW.px);
     expect(SEVERITY_RING.LOW.px).toBeLessThanOrEqual(2);
@@ -219,9 +222,10 @@ describe("visual model: exact channels", () => {
     const a = markerStyle(ev("INDUSTRIAL_SOURCE_CANDIDATE", { severity: "HIGH" }));
     const b = markerStyle(ev("PERSISTENT_THERMAL_SOURCE_CANDIDATE", { severity: "MEDIUM" }));
     const c = markerStyle(ev("UNCERTAIN", { severity: "LOW" }));
-    expect([a.fill, a.ringColor]).toEqual(["#8a5a1c", "#c2410c"]);
-    expect([b.fill, b.ringColor]).toEqual(["#2f7f7a", "#c99a1c"]);
-    expect([c.fill, c.ringColor, c.ringPx]).toEqual(["#e2dfd3", "#3a3d36", 1.5]);
+    expect([a.fill, a.ringColor]).toEqual(["#A9573C", "#C5775D"]);
+    expect(a.fill).not.toBe(a.ringColor);                                                   // fill and ring must stay visibly distinct even within the same colour family
+    expect([b.fill, b.ringColor]).toEqual(["#7C402C", "#B69A6A"]);
+    expect([c.fill, c.ringColor, c.ringPx]).toEqual(["#C9C2B0", "#5C5F49", 1.5]);
   });
 });
 

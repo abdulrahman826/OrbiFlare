@@ -1,6 +1,7 @@
 "use client";
 
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { CHART, TOOLTIP_STYLE } from "@/lib/chartTheme";
 import { fmtDate, fmtNum } from "@/lib/format";
 import type { ThermalTwin } from "@/types/domain";
 
@@ -33,15 +34,15 @@ function PatternChart({ title, data, xKey, labelFmt, interval }: { title: string
       <div className="h-32 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ left: -20, right: 4, top: 4, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#DAD3C2" vertical={false} />
-            <XAxis dataKey={xKey} tick={{ fontSize: 9, fill: "#6C7065" }} interval={interval} axisLine={{ stroke: "#C2BAA5" }} tickLine={false} />
-            <YAxis tick={{ fontSize: 9, fill: "#6C7065" }} axisLine={false} tickLine={false} width={28} unit="%" />
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART.grid} vertical={false} />
+            <XAxis dataKey={xKey} tick={{ fontSize: 9, fill: CHART.tickText }} interval={interval} axisLine={{ stroke: CHART.axisLine }} tickLine={false} />
+            <YAxis tick={{ fontSize: 9, fill: CHART.tickText }} axisLine={false} tickLine={false} width={28} unit="%" />
             <Tooltip
-              contentStyle={{ background: "#FBF9F3", border: "1px solid #C2BAA5", fontSize: 11 }}
+              contentStyle={TOOLTIP_STYLE}
               labelFormatter={(v) => labelFmt(Number(v))}
               formatter={(v: number) => [`${v}%`, "of historical observations"]}
             />
-            <Bar dataKey="freq" fill="#3F5B4A" radius={[2, 2, 0, 0]} isAnimationActive={false} />
+            <Bar dataKey="freq" fill={CHART.normal} radius={[2, 2, 0, 0]} isAnimationActive={false} />
           </BarChart>
         </ResponsiveContainer>
       </div>

@@ -71,9 +71,9 @@ export default function GisExplorerPage() {
           <LayerControl
             layers={[
               { key: "events", label: `Thermal events (${events.length})`, enabled: show.events, color: SEVERITY_HEX.HIGH },
-              { key: "firms", label: `FIRMS observations (${firmsObs.length})`, enabled: show.firms, color: "#1F2421" },
-              { key: "demoObs", label: `Demo observations (${demoObs.length})`, enabled: show.demoObs, color: "#A39C88" },
-              { key: "facilities", label: `Facilities with FIRMS context (${facilities.length})`, enabled: show.facilities, color: "#1F2421" },
+              { key: "firms", label: `FIRMS observations (${firmsObs.length})`, enabled: show.firms, color: "#D6C3A0" },
+              { key: "demoObs", label: `Demo observations (${demoObs.length})`, enabled: show.demoObs, color: "#8A7350" },
+              { key: "facilities", label: `Facilities with FIRMS context (${facilities.length})`, enabled: show.facilities, color: "#454737" },
               { key: "incidents", label: `Historical incidents (${incidents.length})`, enabled: show.incidents, color: INCIDENT_HEX },
             ]}
             onToggle={(key) => toggle(key as keyof typeof show)}
