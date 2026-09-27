@@ -6,6 +6,7 @@ import { DeviationTable } from "@/components/DeviationTable";
 import { EventTable } from "@/components/EventTable";
 import { FacilityThermalProfile } from "@/components/FacilityThermalProfile";
 import { MapPanel } from "@/components/MapPanel";
+import { TwinHistorySummary } from "@/components/TwinHistorySummary";
 import { Panel, StateBlock } from "@/components/Panel";
 import { api, ApiError } from "@/lib/api";
 import { baselineView } from "@/lib/assessment";
@@ -33,7 +34,8 @@ export default async function ThermalTwinDetailPage({ params }: { params: Promis
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h1 className="text-base font-semibold text-base-100">{facility.name} · {baselineView(twin.baseline_confidence, true).twinTitle}</h1>
-            <p className="mt-0.5 text-xs text-base-400">
+            <div className="mt-2"><TwinHistorySummary twin={twin} /></div>
+            <p className="mt-2 text-xs text-base-400">
               Baseline from {twin.historical_event_count} historical event(s) / {twin.historical_observation_count} observation(s).{" "}
               <Link href={`/facilities/${facility.facility_id}`} className="text-accent hover:underline">Facility →</Link>
             </p>

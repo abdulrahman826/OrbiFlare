@@ -33,6 +33,10 @@ class Settings(BaseSettings):
     firms_day_range: int = 5                        # FIRMS Area API allows 1-5 days; more days = more real history for baselines
     firms_bbox: str = "68,6,98,37"                  # west,south,east,north -- India only
     firms_timeout_s: float = 45.0
+    # --- Historical FIRMS baseline (admin operation; never run by the dashboard or the live refresh) ---
+    firms_history_days: int = 180                   # configurable: 90 / 180 / 365 without code changes
+    firms_history_dir: str = str(REPO_ROOT / "data" / "firms" / "historical")
+    history_baseline_min_coverage: float = 0.5      # below this share of the configured window, ESTABLISHED is capped to LIMITED
 
     # --- Event clustering (Thermal Event Engine) ---
     event_spatial_radius_km: float = 1.5

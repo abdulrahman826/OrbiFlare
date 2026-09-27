@@ -26,7 +26,7 @@ from app.intelligence.events import form_events
 from app.intelligence.facility_enrichment import enrich_events
 from app.intelligence.thermal_twin import build_thermal_twin
 from app.intelligence.trajectory import compute_trajectory
-from app.model.schemas import Facility, ThermalEvent, ThermalObservation
+from app.model.schemas import BaselineConfidence, Facility, ThermalEvent, ThermalObservation
 from app.preprocessing.cleaning import deduplicate
 from app.storage import repositories as repo
 
@@ -83,12 +83,22 @@ def build_thermal_twins_stage(events: list[ThermalEvent], observations: list[The
 
     twins = {}
     current_event_by_facility = {}
+    # Historical FIRMS baseline (separate, precomputed, read-only). Only events that ended BEFORE the first live observation are used,
+    # so a current event can never establish its own baseline. Missing history => exactly the previous behaviour.
+    from app.intelligence import history_baseline as hb
+    store = hb.get_store()
+    live_start = min((o.timestamp for o in observations), default=None)
     for facility_id, facility_events in events_by_facility.items():
         facility_events_sorted = sorted(facility_events, key=lambda e: e.first_detected)
         current_event = facility_events_sorted[-1]
         historical = facility_events_sorted[:-1]
         current_event_by_facility[facility_id] = current_event.event_id
-        twins[facility_id] = build_thermal_twin(facility_id, historical, obs_by_event)
+        hist_events, hist_obs = store.events_for(facility_id, before=live_start) if store.available else ([], {})
+        twin = build_thermal_twin(facility_id, hist_events + historical, {**obs_by_event, **hist_obs})
+        cov = store.coverage_fraction() if hist_events else None
+        if cov is not None and cov < get_settings().history_baseline_min_coverage and twin.baseline_confidence == BaselineConfidence.ESTABLISHED:
+            twin = twin.model_copy(update={"baseline_confidence": BaselineConfidence.LIMITED})   # partial coverage never claims an established baseline
+        twins[facility_id] = twin
     return twins, current_event_by_facility, obs_by_event
 
 

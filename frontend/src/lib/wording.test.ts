@@ -58,3 +58,28 @@ describe("user-facing wording", () => {
     expect(hits(/\b0\s*\/\s*30\b|0% accuracy/i)).toEqual([]);
   });
 });
+
+describe("model scores are always described as agreement with the labelling rule", () => {
+  const read = (p: string) => readFileSync(path.join(SRC, p), "utf8");
+  it("the shared description is the exact accepted phrase", () => {
+    expect(read("lib/assessment.ts")).toContain('SCORE_MEANING = "development-set agreement with the labelling rule"');
+  });
+  it("every page that shows a macro-F1 / ROC-AUC figure carries that description next to it", () => {
+    const model = read("app/model/page.tsx");
+    expect((model.match(/sub=\{SCORE_MEANING\}/g) ?? []).length).toBe(2);              // macro-F1 and ROC-AUC KPIs
+    expect(model).toContain("Distance-free model, {SCORE_MEANING}");
+    expect(model).toContain("Ablation ({SCORE_MEANING})");
+    expect(model).toContain("development-set agreement with the labelling rule, measured on a random hold-out");
+    const analytics = read("app/analytics/page.tsx");
+    expect(analytics).toContain("Macro-F1 · development-set agreement with the labelling rule");
+    expect(analytics).toContain("ROC-AUC · development-set agreement with the labelling rule");
+  });
+  it("no visible text presents a model score as fire, real-world or prediction accuracy (denials only)", () => {
+    for (const f of ALL) {
+      for (const l of f.text.split("\n")) {
+        if (/(fire[- ]detection|real-world|fire[- ]prediction|classification) accuracy/i.test(l)) expect(l, f.p).toMatch(/\bnot\b|never|no /i);
+      }
+    }
+    expect(hits(/\b0\.81\b|\b81(\.1)?\s?%/)).toEqual([]);                                // the figure itself is never hard-coded in the UI
+  });
+});

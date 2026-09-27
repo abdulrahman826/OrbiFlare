@@ -43,6 +43,8 @@ export function contextQualityView(q: ContextQuality | null | undefined): Qualit
 export const ATTRIBUTION_NOTE = "Facility context is spatial association, not source attribution. Nearby does not mean caused by.";
 export const ML_ROLE_NOTE = "ML evidence is one component of OrbiFlare's evidence stack and is not presented as confirmation of a fire.";
 export const ML_CORRELATION_NOTE = "Evidence sources may be correlated; ML output is treated as one evidence component.";
+// The only accepted description of the model scores (e.g. macro-F1 0.810): agreement with the labelling rule, never accuracy of fire detection.
+export const SCORE_MEANING = "development-set agreement with the labelling rule";
 export const MODEL_EVALUATION_LABEL = "Development-set evaluation (random hold-out)";
 
 /** Badge for a behavioural-deviation dimension. A significant-looking deviation on LIMITED history is qualified, never shown as an established one. */

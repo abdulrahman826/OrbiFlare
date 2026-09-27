@@ -1,7 +1,7 @@
 import { KPI } from "@/components/KPI";
 import { PageHeader, Panel, StateBlock } from "@/components/Panel";
 import { api } from "@/lib/api";
-import { ML_CORRELATION_NOTE, ML_ROLE_NOTE, MODEL_EVALUATION_LABEL } from "@/lib/assessment";
+import { ML_CORRELATION_NOTE, ML_ROLE_NOTE, MODEL_EVALUATION_LABEL, SCORE_MEANING } from "@/lib/assessment";
 
 export const dynamic = "force-dynamic";
 
@@ -18,13 +18,13 @@ export default async function ModelPage() {
 
       <div className="rounded border border-sev-medium/30 bg-sev-medium/5 p-3 text-xs text-sev-medium">
         <b>{ML_ROLE_NOTE}</b> Its development labels come from a documented heuristic (facility proximity, persistence and label noise), not from verified outcomes.
-        The scores below measure agreement with that heuristic on a random hold-out. They are not real-world fire-detection accuracy and are not an OrbiFlare accuracy figure.
+        The scores below are development-set agreement with the labelling rule, measured on a random hold-out. They are not real-world fire-detection accuracy and are not an OrbiFlare accuracy figure.
       </div>
 
       <Panel variant="section" title="Model evaluation" sub={MODEL_EVALUATION_LABEL}>
         <div className="grid grid-cols-2 gap-2.5 md:grid-cols-5">
-          <KPI label="Macro-F1" value={m.macro_f1 != null ? m.macro_f1.toFixed(3) : "--"} sub="development set" />
-          <KPI label="ROC-AUC" value={m.roc_auc ? m.roc_auc.toFixed(3) : "--"} sub="development set" />
+          <KPI label="Macro-F1" value={m.macro_f1 != null ? m.macro_f1.toFixed(3) : "--"} sub={SCORE_MEANING} />
+          <KPI label="ROC-AUC" value={m.roc_auc ? m.roc_auc.toFixed(3) : "--"} sub={SCORE_MEANING} />
           <KPI label="Development rows" value={`${m.n_train} / ${m.n_val}`} sub="fit / hold-out" />
           <KPI label="Version" value={m.model_version} />
           <KPI label="Feature schema" value={m.feature_schema_version ?? "--"} />
@@ -60,8 +60,8 @@ export default async function ModelPage() {
         <ul className="space-y-1.5 text-xs text-base-200">
           <li><b className="text-base-100">Three states.</b> Usable facility context (an identified facility is nearby), low-quality context (only a generic land-use record), and no facility context.</li>
           <li><b className="text-base-100">Two models, same data.</b> With a usable facility the model receives its real distance. Otherwise a second model runs that simply has no facility-distance input. No placeholder distance is used.</li>
-          {nf && <li><b className="text-base-100">Development-set evaluation of the distance-free model:</b> macro-F1 <span className="font-mono">{nf.macro_f1.toFixed(3)}</span> (with distance: <span className="font-mono">{m.macro_f1?.toFixed(3)}</span>). The gap shows how much of the score depends on facility distance.</li>}
-          {m.ablations && <li><b className="text-base-100">Ablation:</b> without persistence, macro-F1 is <span className="font-mono">{m.ablations.without_persistence.macro_f1.toFixed(3)}</span>; without facility distance, <span className="font-mono">{m.ablations.without_facility_distance.macro_f1.toFixed(3)}</span>.</li>}
+          {nf && <li><b className="text-base-100">Distance-free model, {SCORE_MEANING}:</b> macro-F1 <span className="font-mono">{nf.macro_f1.toFixed(3)}</span> (with distance: <span className="font-mono">{m.macro_f1?.toFixed(3)}</span>). The gap shows how much of the score depends on facility distance.</li>}
+          {m.ablations && <li><b className="text-base-100">Ablation ({SCORE_MEANING}):</b> without persistence, macro-F1 is <span className="font-mono">{m.ablations.without_persistence.macro_f1.toFixed(3)}</span>; without facility distance, <span className="font-mono">{m.ablations.without_facility_distance.macro_f1.toFixed(3)}</span>.</li>}
         </ul>
       </Panel>
 

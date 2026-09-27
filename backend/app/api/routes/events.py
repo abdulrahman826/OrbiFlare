@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.alerts import lifecycle
 from app.api.schemas import AlertTransitionRequest
+from app.intelligence import interpretation_service
 from app.intelligence.replay import build_replay
 from app.intelligence.trajectory import compute_trajectory
 from app.model.schemas import AlertState
@@ -57,6 +58,15 @@ def event_evidence(event_id: str, db: Session = Depends(get_db)) -> dict:
     if e is None:
         raise HTTPException(404, f"No evidence computed for {event_id}")
     return e.model_dump(mode="json")
+
+
+@router.get("/{event_id}/interpretation")
+def event_interpretation(event_id: str, db: Session = Depends(get_db)) -> dict:
+    row = repo.get_event(db, event_id)
+    if row is None:
+        raise HTTPException(404, f"Event {event_id} not found")
+    event = repo.attach_derived_event_fields(db, [repo.event_to_schema(row)])[0]
+    return {"event_id": event_id, **interpretation_service.interpretation_for(db, event).full()}
 
 
 @router.get("/{event_id}/risk")

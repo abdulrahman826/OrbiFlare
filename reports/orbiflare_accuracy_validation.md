@@ -1,31 +1,31 @@
 # OrbiFlare Accuracy & Validation Report
 
-_Generated 2026-09-25 05:13 UTC by `scripts/validate_accuracy.py`. Evaluation only: production model, thresholds and events were not modified._
+_Generated 2026-09-26 18:29 UTC by `scripts/validate_accuracy.py`. Evaluation only: production model, thresholds and events were not modified._
 
 ## Executive Summary
 
 **There is no defensible overall real-world accuracy figure for OrbiFlare, and none is reported.** No verified ground truth exists: the RF is trained and scored on synthetic, proxy-labelled data, and none of the 30 historical incidents can be evaluated because no FIRMS data for their dates is available. What *has* been validated is engineering fidelity:
 
-- FIRMS ingestion fidelity: 1346 / 1346 = 100.0%  _(population: rows NASA returns right now for the configured products/window; method: csv-module parse vs stored row)_
-- Facility association recomputation: 1012 / 1012 = 100.0%  _(population: all live events; method: brute-force haversine to every indexed facility (numpy), nearest within radius; id equal and distance within 0.02 km; 'none' must also match)_
+- FIRMS ingestion fidelity: 1437 / 1437 = 100.0%  _(population: rows NASA returns right now for the configured products/window; method: csv-module parse vs stored row)_
+- Facility association recomputation: 1449 / 1449 = 100.0%  _(population: all live events; method: brute-force haversine to every indexed facility (numpy), nearest within radius; id equal and distance within 0.02 km; 'none' must also match)_
 - RF vs proxy labels (synthetic, held-out 20%): accuracy 0.811, macro-F1 0.810, balanced accuracy 0.812. This measures recovery of the labelling heuristic, not fire detection.
 - Removing the facility-distance feature changes macro-F1 by -0.073 (mean over 20 corpora: -0.095).
 - Historical backtest: 0 / 30 = 0.0%  _(population: 30 curated historical incidents (2019-2023); method: incident date inside the stored FIRMS observation window)_ evaluable.
-- Backend tests: 275 passed, 0 failed, 0 skipped (of 275).
+- Backend tests: 327 passed, 0 failed, 0 skipped (of 327).
 
 ## A. FIRMS Ingestion Fidelity
 
-Not an accuracy claim. 1346 / 1346 = 100.0%  _(population: rows NASA returns right now for the configured products/window; method: csv-module parse vs stored row)_
+Not an accuracy claim. 1437 / 1437 = 100.0%  _(population: rows NASA returns right now for the configured products/window; method: csv-module parse vs stored row)_
 
-- Observations checked: 1346; not yet in the database (published after last refresh): 0; field mismatches: none
-- `VIIRS_NOAA21_NRT`: {'rows_from_nasa_now': 634, 'exact': 634, 'field_mismatch': 0, 'not_in_database': 0}
-- `VIIRS_NOAA20_NRT`: {'rows_from_nasa_now': 712, 'exact': 712, 'field_mismatch': 0, 'not_in_database': 0}
+- Observations checked: 1437; not yet in the database (published after last refresh): 0; field mismatches: none
+- `VIIRS_NOAA21_NRT`: {'rows_from_nasa_now': 728, 'exact': 728, 'field_mismatch': 0, 'not_in_database': 0}
+- `VIIRS_NOAA20_NRT`: {'rows_from_nasa_now': 709, 'exact': 709, 'field_mismatch': 0, 'not_in_database': 0}
 
 ## B. Facility Association Validation
 
-Spatial association only, not causation. 1012 / 1012 = 100.0%  _(population: all live events; method: brute-force haversine to every indexed facility (numpy), nearest within radius; id equal and distance within 0.02 km; 'none' must also match)_
+Spatial association only, not causation. 1449 / 1449 = 100.0%  _(population: all live events; method: brute-force haversine to every indexed facility (numpy), nearest within radius; id equal and distance within 0.02 km; 'none' must also match)_
 
-- Indexed facilities: 38,189; radius 3.0 km; events with context: 431; mismatches: {'wrong_facility': 0, 'wrong_distance': 0, 'context_missing': 0, 'context_spurious': 0}; context quality (events): {'MEDIUM': 22, 'LOW': 347, 'HIGH': 62}
+- Indexed facilities: 38,189; radius 3.0 km; events with context: 530; mismatches: {'wrong_facility': 0, 'wrong_distance': 0, 'context_missing': 0, 'context_spurious': 0}; context quality (events): {'MEDIUM': 29, 'LOW': 428, 'HIGH': 73}
 
 ## C. RF Proxy-Label Evaluation
 
@@ -77,8 +77,8 @@ Same corpus, split and hyper-parameters; evaluation only.
 - 51 / 727 = 7.02%  _(population: class B rows; method: count)_
 - 17 / 727 = 2.34%  _(population: class B rows; method: count)_
 - class_A_maximum_distance_km: 103.04721939657229
-- P(class A) as distance varies (other features fixed): `{"typical live event (median bt, frp)": {"0.1": 0.4563, "1": 0.4393, "2": 0.3983, "3": 0.3738, "5": 0.3348, "10": 0.2575, "20": 0.2979, "30": 0.3041, "40": 0.3247, "50": 0.3381, "80": 0.3597, "120": 0.3597}, "persistent live event (persistence 6)": {"0.1": 0.8458, "1": 0.8631, "2": 0.8305, "3": 0.8229, "5": 0.5794, "10": 0.247, "20": 0.2709, "30": 0.2875, "40": 0.3206, "50": 0.3289, "80": 0.3433, "120": 0.3433}}`
-- Live LOW-quality events (347): 125 / 347 = 36.02%  _(population: live events with LOW-quality facility context; method: predict_proba >= 0.5, everything else identical)_; mean P(A) with actual generic-record distance 0.446 vs sentinel 0.236 (shift -0.210)
+- P(class A) as distance varies (other features fixed): `{"typical live event (median bt, frp)": {"0.1": 0.476, "1": 0.4624, "2": 0.4288, "3": 0.4076, "5": 0.361, "10": 0.2566, "20": 0.2955, "30": 0.3019, "40": 0.3247, "50": 0.3389, "80": 0.3604, "120": 0.3604}, "persistent live event (persistence 6)": {"0.1": 0.8583, "1": 0.8746, "2": 0.8412, "3": 0.8319, "5": 0.5898, "10": 0.247, "20": 0.2735, "30": 0.2884, "40": 0.3241, "50": 0.3305, "80": 0.3449, "120": 0.3449}}`
+- Live LOW-quality events (428): 143 / 428 = 33.41%  _(population: live events with LOW-quality facility context; method: predict_proba >= 0.5, everything else identical)_; mean P(A) with actual generic-record distance 0.443 vs sentinel 0.241 (shift -0.202)
 
 **Assessment:** 50 km is INSIDE the training range (max 172.0 km) but sparsely populated: 64/1400 rows lie at >= 45 km (51/727 class-B rows, 13/673 class-A rows; the class-A ones are label-noise flips). The forest's response to distance is NOT monotone (see the sweep: P(A) is lower at 10 km than at 50 km for typical events) because it has few samples in the far tail, so 50 km is read as 'somewhat far', not as a clean 'no facility'. That is the intended meaning for a LOW-quality generic record, but it is also an ARTIFICIAL classification effect: the true distance is unknown-but-within-search-radius, and the model receives a specific far value. Recommendation (NOT applied): represent 'no usable facility' as a missing-value indicator (separate binary feature) or train with an explicit no-facility class, instead of a magic distance.
 
@@ -87,7 +87,7 @@ Same corpus, split and hyper-parameters; evaluation only.
 - 0 / 30 = 0.0%  _(population: 30 curated historical incidents (2019-2023); method: incident date inside the stored FIRMS observation window)_
 - 30 / 30 = 100.0%  _(population: same; method: same; NOT counted as model failures)_
 - 0 / 30 = 0.0%  _(population: same; method: SQL count)_
-- Incident dates ['2019-05-24', '2023-11-01']; stored FIRMS window ['2026-09-20 06:20:00.000000', '2026-09-24 21:50:00.000000']; raw parquet: {'path': 'data/raw/firms_observations.parquet', 'rows': 91, 'columns': ['observation_id', 'timestamp', 'latitude', 'longitude', 'sensor', 'brightness_temperature', 'brightness_temperature_11', 'frp', 'confidence', 'day_night', 'source', 'source_id'], 'time_range': ['2026-09-22T06:18:00', '2026-09-22T09:41:00']}
+- Incident dates ['2019-05-24', '2023-11-01']; stored FIRMS window ['2026-09-20 06:20:00.000000', '2026-09-26 08:48:00.000000']; raw parquet: {'path': 'data/raw/firms_observations.parquet', 'rows': 91, 'columns': ['observation_id', 'timestamp', 'latitude', 'longitude', 'sensor', 'brightness_temperature', 'brightness_temperature_11', 'frp', 'confidence', 'day_night', 'source', 'source_id'], 'time_range': ['2026-09-22T06:18:00', '2026-09-22T09:41:00']}
 - Acquisition mechanism: The project ingests NEAR-REAL-TIME data only (day_range <= 5 from today). It has no historical/archive acquisition mechanism.
 - Surfaced as events / capture rate / top-10% / top-25% / median rank: **not computable** (No incident has FIRMS coverage, so there is nothing to process, surface or rank. No historical observation was invented and no incident was manually labelled.)
 - Even with archive data, several of the 30 records are not thermal-anomaly targets at VIIRS scale or are not fires (gas leak, memorial anniversary, stubble-burning reference points, chronic thermal sources), and coordinates are approximate (site/city level).
@@ -95,7 +95,7 @@ Same corpus, split and hyper-parameters; evaluation only.
 
 ## G. Event Formation Validation
 
-Event/pipeline/lifecycle test files: 101 passed, 0 failed of 101. Full backend suite: {'total': 275, 'passed': 275, 'failed': 0, 'skipped': 0, 'exit_code': 0}
+Event/pipeline/lifecycle test files: 101 passed, 0 failed of 101. Full backend suite: {'total': 327, 'passed': 327, 'failed': 0, 'skipped': 0, 'exit_code': 0}
 
 | Behaviour | tests | passed | failed |
 |---|---|---|---|
@@ -113,50 +113,50 @@ Live: refresh idempotent = True; merged/split in the real refresh: 0/0 (merge/sp
 
 ## H. Risk/Replay Validation
 
-- severity_matches_thresholds: 1012 / 1012 = 100.0%  _(population: live events; method: recomputed from config thresholds)_
-- stored_risk_equals_event_risk: 1012 / 1012 = 100.0%  _(population: live events; method: SQL join)_
-- risk_in_0_100: 1012 / 1012 = 100.0%  _(population: live events; method: range check)_
-- trajectory_final_point_equals_event_risk: 1012 / 1012 = 100.0%  _(population: live events with trajectory points; method: SQL)_
-- trajectory_timestamps_monotone: 1012 / 1012 = 100.0%  _(population: live events with trajectory points; method: SQL)_
-- Limited-baseline cap: {'events': 98, 'cap_pts': 14.0, 'max_observed': 9.34, 'violations': 0}; insufficient/no-baseline events with non-zero deviation: 0; LOW-quality facility with facility risk: 0
+- severity_matches_thresholds: 1449 / 1449 = 100.0%  _(population: live events; method: recomputed from config thresholds)_
+- stored_risk_equals_event_risk: 1449 / 1449 = 100.0%  _(population: live events; method: SQL join)_
+- risk_in_0_100: 1449 / 1449 = 100.0%  _(population: live events; method: range check)_
+- trajectory_final_point_equals_event_risk: 1449 / 1449 = 100.0%  _(population: live events with trajectory points; method: SQL)_
+- trajectory_timestamps_monotone: 1449 / 1449 = 100.0%  _(population: live events with trajectory points; method: SQL)_
+- Limited-baseline cap: {'events': 40, 'cap_pts': 14.0, 'max_observed': 5.84, 'violations': 0}; insufficient/no-baseline events with non-zero deviation: 0; LOW-quality facility with facility risk: 0
 - Thresholds {'medium': 35.0, 'high': 60.0, 'critical': 80.0, 'changed_in_this_pass': False}
 
 ## I. Live System Statistics
 
 Operational statistics, **not accuracy**.
 
-- firms_observations: 1873
-- by_satellite: {'N20': 956, 'N21': 917}
-- acquisition_range_utc: ['2026-09-20 06:20:00.000000', '2026-09-24 21:50:00.000000']
-- nasa_confidence: {'h': 10, 'l': 121, 'n': 1742}
+- firms_observations: 2499
+- by_satellite: {'N20': 1212, 'N21': 1287}
+- acquisition_range_utc: ['2026-09-20 06:20:00.000000', '2026-09-26 08:48:00.000000']
+- nasa_confidence: {'h': 17, 'l': 228, 'n': 2254}
 - synthetic_observations: 0
 - synthetic_events: 0
-- events: 1012
-- severity: {'LOW': 1007, 'MEDIUM': 5}
-- trajectory: {'INSUFFICIENT_DATA': 709, 'STABLE': 230, 'ESCALATING': 14, 'INCREASING': 57, 'DECREASING': 2}
-- escalating: 14
-- persistent_ge6_obs: 41
-- status: {'DETECTED': 1012}
-- max_risk: 44.0
-- facility_context_events: 431
-- context_quality: {'MEDIUM': 22, 'LOW': 347, 'HIGH': 62}
-- events_no_facility_context: 581
-- referenced_facilities: 282
-- facility_twins: {'ESTABLISHED': 4, 'INSUFFICIENT': 252, 'LIMITED': 26}
-- event_baselines_from_risk: {'INSUFFICIENT': 893, 'LIMITED': 98, 'ESTABLISHED': 21}
-- refresh: {'first': {'status': 'OK', 'observations_received': 1346, 'new_observations': 0, 'updated_observations': 0, 'events_total': 1012, 'events_created': 0, 'events_updated': 0, 'events_unchanged': 1012, 'events_merged': 0, 'events_split': 0, 'seconds': 12.1}, 'immediately_after': {'status': 'OK', 'observations_received': 1346, 'new_observations': 0, 'updated_observations': 0, 'events_total': 1012, 'events_created': 0, 'events_updated': 0, 'events_unchanged': 1012, 'events_merged': 0, 'events_split': 0, 'seconds': 11.6}, 'idempotent': True}
+- events: 1449
+- severity: {'LOW': 1430, 'MEDIUM': 17, 'HIGH': 2}
+- trajectory: {'INSUFFICIENT_DATA': 1057, 'STABLE': 294, 'INCREASING': 75, 'ESCALATING': 23}
+- escalating: 23
+- persistent_ge6_obs: 49
+- status: {'DETECTED': 1448, 'EXTINGUISHED': 1}
+- max_risk: 61.5
+- facility_context_events: 530
+- context_quality: {'MEDIUM': 29, 'LOW': 428, 'HIGH': 73}
+- events_no_facility_context: 919
+- referenced_facilities: 337
+- facility_twins: {'ESTABLISHED': 221, 'INSUFFICIENT': 78, 'LIMITED': 38}
+- event_baselines_from_risk: {'INSUFFICIENT': 999, 'LIMITED': 40, 'ESTABLISHED': 410}
+- refresh: {'first': {'status': 'OK', 'observations_received': 1437, 'new_observations': 0, 'updated_observations': 0, 'events_total': 1449, 'events_created': 0, 'events_updated': 0, 'events_unchanged': 1449, 'events_merged': 0, 'events_split': 0, 'seconds': 20.1}, 'immediately_after': {'status': 'OK', 'observations_received': 1437, 'new_observations': 0, 'updated_observations': 0, 'events_total': 1449, 'events_created': 0, 'events_updated': 0, 'events_unchanged': 1449, 'events_merged': 0, 'events_split': 0, 'seconds': 20.0}, 'idempotent': True}
 
 **Distribution shift (live features vs RF training range):**
 - note: Share of LIVE events whose feature lies outside the range the RF saw in training (synthetic corpus).
-- persistence_gt_training_max: 8 / 1012 = 0.79%  _(population: live events; method: training max persistence = 14)_
-- frp_gt_training_max: 0 / 1012 = 0.0%  _(population: live events; method: training max FRP = 120)_
-- bt_outside_training: 0 / 1012 = 0.0%  _(population: live events; method: training BT range 290..389 K)_
-- live_feature_summary: {'bt': {'min': 295.29, 'median': 329.435, 'max': 367.0}, 'frp': {'min': 0.16, 'median': 2.355, 'max': 34.08}, 'obs': {'min': 1.0, 'median': 1.0, 'max': 74.0}}
-- live_predicted_class_counts: {None: 928, 'NATURAL_AGRICULTURAL_FIRE_CANDIDATE': 45, 'PERSISTENT_INDUSTRIAL_THERMAL_SOURCE': 39}
+- persistence_gt_training_max: 9 / 1449 = 0.62%  _(population: live events; method: training max persistence = 14)_
+- frp_gt_training_max: 0 / 1449 = 0.0%  _(population: live events; method: training max FRP = 120)_
+- bt_outside_training: 0 / 1449 = 0.0%  _(population: live events; method: training BT range 290..389 K)_
+- live_feature_summary: {'bt': {'min': 295.29, 'median': 331.62, 'max': 367.0}, 'frp': {'min': 0.16, 'median': 2.84, 'max': 34.68}, 'obs': {'min': 1.0, 'median': 1.0, 'max': 93.0}}
+- live_predicted_class_counts: {None: 1347, 'NATURAL_AGRICULTURAL_FIRE_CANDIDATE': 57, 'PERSISTENT_INDUSTRIAL_THERMAL_SOURCE': 45}
 
 ## J. Scientific Claim Audit
 
-Scanned 155 files; 62 pattern hits; 61 are negations/denials (safe); **1 need review**.
+Scanned 164 files; 75 pattern hits; 74 are negations/denials (safe); **1 need review**.
 
 | file | line | pattern | current wording | recommended |
 |---|---|---|---|---|
@@ -164,7 +164,7 @@ Scanned 155 files; 62 pattern hits; 61 are negations/denials (safe); **1 need re
 
 ## K. Visual Validation
 
-See reports/orbiflare_final_hardening_report.md (browser screenshots of Model, Investigation x2, Command Center, Events were captured in this pass; earlier pass covered the remaining pages).
+See final audit
 
 ## L. Limitations
 

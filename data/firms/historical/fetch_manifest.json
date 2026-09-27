@@ -1,0 +1,35 @@
+{
+ "status": "OK",
+ "fetched_at": "2026-09-26T17:55:05+00:00",
+ "window_first": "2026-03-25",
+ "window_last": "2026-09-20",
+ "requested_days": 180,
+ "covered_days_by_satellite": {
+  "N20": 180,
+  "N21": 180
+ },
+ "covered_days": 180,
+ "chunks_planned": 73,
+ "chunks_downloaded": 0,
+ "chunks_cached": 73,
+ "chunks_failed": [],
+ "products": [
+  "VIIRS_NOAA20_NRT",
+  "VIIRS_NOAA20_SP",
+  "VIIRS_NOAA21_NRT"
+ ],
+ "availability": {
+  "VIIRS_NOAA20_NRT": [
+   "2026-07-01",
+   "2026-09-26"
+  ],
+  "VIIRS_NOAA20_SP": [
+   "2018-04-01",
+   "2026-06-30"
+  ],
+  "VIIRS_NOAA21_NRT": [
+   "2024-01-17",
+   "2026-09-26"
+  ]
+ }
+}

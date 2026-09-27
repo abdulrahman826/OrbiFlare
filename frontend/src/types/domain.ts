@@ -32,7 +32,22 @@ export interface ThermalObservation {
   is_live_firms: boolean;
 }
 
+export type SourceInterpretationClass =
+  | "INDUSTRIAL_SOURCE_CANDIDATE" | "AGRICULTURAL_VEGETATION_CANDIDATE" | "PERSISTENT_THERMAL_SOURCE_CANDIDATE" | "NATURAL_OTHER_THERMAL_SOURCE_CANDIDATE" | "UNCERTAIN";
+export interface SourceInterpretationSummary { classification: SourceInterpretationClass; label: string; strength: "HIGH" | "MODERATE" | "LOW" | "UNCERTAIN" }
+export interface SourceInterpretation extends SourceInterpretationSummary {
+  meaning: string; scores: Record<string, number>;
+  supporting_evidence: { signal: string; supports: string; weight: number; text: string }[];
+  contradicting_evidence: { signal: string; text: string }[];
+  unavailable_evidence: string[]; alternative_explanations: string[]; disclaimer: string; facility_note: string;
+}
+export interface HistoryStatus {
+  state: "OK" | "PARTIAL" | "UNAVAILABLE"; message: string | null; configured_days?: number; requested_days?: number; covered_days?: number; coverage?: number | null;
+  window_first?: string; window_last?: string; historical_observations?: number; historical_events_with_facility?: number; facilities_with_history?: number; built_at?: string; failed_chunks?: number;
+}
+
 export interface ThermalEvent {
+  source_interpretation?: SourceInterpretationSummary | null;
   event_id: string;
   first_detected: string;
   last_detected: string;
@@ -256,6 +271,7 @@ export interface OperatorHistoryEntry {
 }
 
 export interface Investigation {
+  source_interpretation?: SourceInterpretation | null;
   event: ThermalEvent;
   observations: ThermalObservation[];
   facility: Facility | null;

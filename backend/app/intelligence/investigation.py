@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from sqlalchemy.orm import Session
 
+from app.intelligence import interpretation_service
 from app.intelligence.alternative_explanations import build_alternative_explanations
 from app.intelligence.trajectory import compute_trajectory
 from app.model.schemas import AlertState, Investigation
@@ -68,4 +69,5 @@ def get_investigation(db: Session, event_id: str) -> Investigation | None:
         ml_prediction=ml, evidence=evidence, alternative_explanations=alternatives, risk=risk,
         trajectory=trajectory, uncertainty_notes=uncertainty_notes,
         operator_state=AlertState(alert_row.state), operator_history=operator_history,
+        source_interpretation=interpretation_service.interpretation_for(db, event).full(),
     )

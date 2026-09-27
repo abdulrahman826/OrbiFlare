@@ -1,0 +1,53 @@
+{
+ "schema_version": 1,
+ "built_at": "2026-09-26T17:55:06+00:00",
+ "data_origin": "FIRMS_HISTORICAL",
+ "configured_days": 180,
+ "fetch": {
+  "status": "OK",
+  "fetched_at": "2026-09-26T17:55:05+00:00",
+  "window_first": "2026-03-25",
+  "window_last": "2026-09-20",
+  "requested_days": 180,
+  "covered_days_by_satellite": {
+   "N20": 180,
+   "N21": 180
+  },
+  "covered_days": 180,
+  "chunks_planned": 73,
+  "chunks_downloaded": 0,
+  "chunks_cached": 73,
+  "chunks_failed": [],
+  "products": [
+   "VIIRS_NOAA20_NRT",
+   "VIIRS_NOAA20_SP",
+   "VIIRS_NOAA21_NRT"
+  ],
+  "availability": {
+   "VIIRS_NOAA20_NRT": [
+    "2026-07-01",
+    "2026-09-26"
+   ],
+   "VIIRS_NOAA20_SP": [
+    "2018-04-01",
+    "2026-06-30"
+   ],
+   "VIIRS_NOAA21_NRT": [
+    "2024-01-17",
+    "2026-09-26"
+   ]
+  }
+ },
+ "radius_km": 3.0,
+ "status": "OK",
+ "historical_observations": 938775,
+ "observations_near_facilities": 149333,
+ "historical_events_total": 67205,
+ "historical_events_with_facility": 38702,
+ "facilities_with_history": 9383,
+ "first_observation": "2026-03-25",
+ "last_observation": "2026-09-20",
+ "firms_type_present_rows": 465300,
+ "firms_type_static_land_source_rows": 22939,
+ "firms_type_note": "FIRMS `type` (0=presumed vegetation fire, 1=active volcano, 2=other static land source, 3=offshore) is provided only for Standard Processing rows; NRT rows carry no type field."
+}

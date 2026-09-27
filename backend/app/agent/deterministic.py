@@ -20,6 +20,7 @@ class ParsedIntent:
     incident_ids: list[str] = field(default_factory=list)
     state: str | None = None
     severity: str | None = None
+    interpretation: str | None = None     # source-interpretation class filter (see intelligence/source_interpretation.py)
 
 
 def parse(message: str) -> ParsedIntent:
@@ -53,6 +54,13 @@ def parse(message: str) -> ParsedIntent:
         return ParsedIntent("compare_facilities", facility_ids=facility_ids)
     if "compare" in text and len(event_ids) == 1 and ("baseline" in text or "normal" in text):
         return ParsedIntent("compare_event_to_baseline", event_ids=event_ids)
+    # Source interpretation (descriptive candidate labels; never a confirmed fire)
+    if event_ids and ("classif" in text or "industrial fire" in text or "industrial-source" in text or "industrial source" in text
+                      or "agricultural" in text or "uncertain" in text or "interpret" in text or "candidate" in text):
+        return ParsedIntent("explain_interpretation", event_ids=event_ids)
+    interp = _interpretation_in(text)
+    if interp and not event_ids and not facility_ids:
+        return ParsedIntent("list_events_by_interpretation", interpretation=interp)
     if ("why" in text or "explain" in text) and event_ids:
         return ParsedIntent("explain_risk", event_ids=event_ids)
     if ("evidence" in text) and event_ids:
@@ -93,6 +101,21 @@ def parse(message: str) -> ParsedIntent:
         return ParsedIntent("list_events", severity=severity)
 
     return ParsedIntent("unknown")
+
+
+def _interpretation_in(text: str) -> str | None:
+    from app.intelligence import source_interpretation as si
+    if "persistent thermal-source" in text or "persistent thermal source" in text or "thermal-source candidate" in text:
+        return si.PERSISTENT
+    if "industrial-source" in text or "industrial source" in text or "industrial candidate" in text or "industrial thermal" in text:
+        return si.INDUSTRIAL
+    if "agricultur" in text or "vegetation" in text or "crop" in text:
+        return si.AGRICULTURAL
+    if "uncertain" in text:
+        return si.UNCERTAIN
+    if "natural" in text and ("candidate" in text or "thermal" in text or "other" in text):
+        return si.NATURAL
+    return None
 
 
 def _state_in(text: str) -> str | None:

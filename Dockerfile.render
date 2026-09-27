@@ -8,6 +8,7 @@ RUN pip install --no-cache-dir -r backend/requirements.txt
 COPY backend/app backend/app
 COPY data/facilities data/facilities
 COPY data/reference data/reference
+COPY data/firms data/firms
 RUN mkdir -p backend/data
 WORKDIR /app/backend
 # Render injects $PORT

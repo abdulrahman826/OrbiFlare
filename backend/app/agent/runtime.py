@@ -127,6 +127,26 @@ def run_query(db: Session, message: str) -> AgentResponse:
         if cmp:
             cards.append(ResultCard(type="comparison", title="Facility comparison", data=cmp))
 
+    elif parsed.intent == "explain_interpretation":
+        event_id = parsed.event_ids[0]
+        si = tools.get_source_interpretation(db, event_id)
+        record("get_source_interpretation", {"event_id": event_id}, si)
+        if si is None:
+            text = f"I couldn't find event {event_id}."
+        else:
+            text = resp_mod.interpretation_text(event_id, si, message)
+            cards.append(resp_mod.build_event_card(si["event"]))
+            ui_action = resp_mod.ui_action_for_event(event_id)
+
+    elif parsed.intent == "list_events_by_interpretation":
+        from app.intelligence import source_interpretation as si_mod
+        events = tools.list_events_by_interpretation(db, parsed.interpretation, limit=None)
+        record("list_events_by_interpretation", {"interpretation": parsed.interpretation}, events)
+        label = si_mod.LABELS[parsed.interpretation].lower()
+        text = (f"{len(events)} active event(s) are currently interpreted as {label}. This is an evidence-based candidate label, not a confirmed fire."
+                if events else f"No active events are currently interpreted as {label}.")
+        cards = [resp_mod.build_event_card(e) for e in events[:5]]
+
     elif parsed.intent == "list_high_risk_events":
         events = tools.list_high_risk_events(db, limit=None)   # full list: the answer states the true count, cards show the top 5
         record("list_high_risk_events", {}, events)

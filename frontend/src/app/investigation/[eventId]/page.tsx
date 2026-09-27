@@ -10,6 +10,7 @@ import { FacilityContextSection } from "@/components/FacilityContextSection";
 import { FirmsObservationsTable } from "@/components/FirmsObservationsTable";
 import { InvestigationHeader } from "@/components/InvestigationHeader";
 import { MapPanel } from "@/components/MapPanel";
+import { SourceInterpretationPanel } from "@/components/SourceInterpretationPanel";
 import { MlEvidenceNote } from "@/components/MlEvidenceNote";
 import { NasaObservationRows } from "@/components/NasaObservationRows";
 import { OperatorActionsSection } from "@/components/OperatorActionsSection";
@@ -49,6 +50,8 @@ export default async function InvestigationPage({ params }: { params: Promise<{ 
   return (
     <div className="space-y-3">
       <Panel><InvestigationHeader event={event} facility={facility} sourceLabel={sourceLabel} /></Panel>
+
+      <SourceInterpretationPanel si={investigation.source_interpretation} />
 
       {ambiguous && (
         <div className="rounded border border-sev-medium/40 bg-sev-medium/5 px-3 py-2 text-xs text-sev-medium">

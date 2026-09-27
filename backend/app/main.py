@@ -13,6 +13,7 @@ import threading
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.routes import history as history_routes
 from app.api.routes import (
     agent,
     alerts,
@@ -70,7 +71,7 @@ app.add_middleware(
 )
 
 for router in (health.router, observations.router, events.router, facilities.router, thermal_twins.router,
-               analytics.router, alerts.router, reports.router, map_routes.router, agent.router, pipeline_routes.router, reference.router, firms.router, context_routes.router):
+               analytics.router, alerts.router, reports.router, map_routes.router, agent.router, pipeline_routes.router, reference.router, firms.router, context_routes.router, history_routes.router):
     app.include_router(router, prefix="/api")
 
 

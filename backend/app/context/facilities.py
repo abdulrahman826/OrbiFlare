@@ -48,6 +48,18 @@ def context_quality(facility_type: str | None, name: str | None, source: str | N
     return "MEDIUM", "identifiable site type, but not clearly a heat-producing installation"
 
 
+_QUALITY_RANK = {"HIGH": 0, "MEDIUM": 1, "LOW": 2}
+
+
+def _tie_break_key(r: dict) -> tuple:
+    """Deterministic ordering of facilities around a point. Distance (to 1 mm) first, so nothing changes for distinct distances; records at the
+    SAME distance (e.g. two records at identical coordinates) are ordered by (1) context quality HIGH > MEDIUM > LOW, (2) heat-relevant facility
+    type before other types, (3) facility_id ascending. Never depends on row order or on the spatial tree's internal ordering."""
+    t = str(r.get("facility_type") or "").lower().replace("_", " ")
+    heat = any(k in t for k in THERMAL_KEYWORDS)
+    return (round(r.get("distance_km", 0.0), 6), _QUALITY_RANK.get(r.get("context_quality"), 3), 0 if heat else 1, str(r["facility_id"]))
+
+
 DISTANCE_NOTE = "OSM industrial areas are stored as a single point; distance is to that point, not to the area boundary."
 
 
@@ -81,6 +93,7 @@ class FacilityContextIndex:
             return []
         idx, dist = self.tree.query_radius(np.radians([[lat, lon]]), r=radius_km / EARTH_RADIUS_KM, return_distance=True, sort_results=True)
         rows = [self._row(int(i), float(d) * EARTH_RADIUS_KM) for i, d in zip(idx[0], dist[0])]
+        rows.sort(key=_tie_break_key)
         return rows[:limit] if limit else rows
 
     def nearest(self, lat: float, lon: float, radius_km: float) -> dict | None:

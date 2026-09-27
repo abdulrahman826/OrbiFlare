@@ -31,6 +31,24 @@ def explain_risk_text(investigation: dict) -> str:
     return " ".join(lines)
 
 
+def interpretation_text(event_id: str, si: dict, message: str = "") -> str:
+    """Answer built only from the stored interpretation (candidate label + the evidence that produced it)."""
+    label = si["label"]
+    lines = []
+    if "industrial fire" in message.lower():
+        lines.append(f"OrbiFlare classifies {event_id} as {'an ' if label[0].lower() in 'aeiou' else 'a '}{label.lower()} based on the available evidence; it is not a confirmed fire.")
+    else:
+        lines.append(f"{event_id}: {label}" + ("" if si["classification"] == "UNCERTAIN" else f" ({si['strength']} evidence)") + ". " + si["meaning"])
+    if si["supporting_evidence"]:
+        lines.append("Evidence: " + "; ".join(x["text"] for x in si["supporting_evidence"]) + ".")
+    if si["contradicting_evidence"]:
+        lines.append("Against or limiting: " + "; ".join(x["text"] for x in si["contradicting_evidence"]) + ".")
+    if si["unavailable_evidence"]:
+        lines.append("Unavailable: " + "; ".join(si["unavailable_evidence"][:3]) + ".")
+    lines.append(si["disclaimer"] + " " + si["facility_note"])
+    return " ".join(lines)
+
+
 def build_event_card(event: dict) -> ResultCard:
     parts = [f"{event.get('severity') or 'UNSCORED'} - risk {event.get('risk_score') or 0:.0f}"]
     if event.get("trajectory_direction"):

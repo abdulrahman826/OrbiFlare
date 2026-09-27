@@ -65,8 +65,9 @@ export default async function CommandCenterPage() {
     "show escalating events",
     "how many high risk events are active?",
     "which facility has the most persistent events?",
-    "which events have insufficient baseline?",
-    ...(topEvent ? [`why is ${topEvent.event_id} high risk?`, `compare ${topEvent.event_id} baseline`] : []),
+    "show industrial-source candidates",
+    "show uncertain thermal events",
+    ...(topEvent ? [`why is ${topEvent.event_id} high risk?`, `why is ${topEvent.event_id} classified as an industrial-source candidate?`, `compare ${topEvent.event_id} baseline`] : []),
   ];
 
   return (
@@ -87,7 +88,7 @@ export default async function CommandCenterPage() {
         <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_360px]">
           <Panel title="Thermal event map" sub="Interpreted events by severity · raw FIRMS observations as small dots · facilities as neutral squares" flush>
             <div className="p-2">
-              {active.length === 0 ? <StateBlock kind="empty" title="No active events" /> : <MapPanel events={active} facilities={facilities} observations={firmsObs} height={520} />}
+              {active.length === 0 ? <StateBlock kind="empty" title="No active events" /> : <MapPanel events={active} facilities={facilities} observations={firmsObs} focusControl height={520} />}
             </div>
           </Panel>
           <Panel

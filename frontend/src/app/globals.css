@@ -43,7 +43,9 @@ body {
 }
 
 /* MapLibre popups / controls */
-.maplibregl-popup-content {
+.maplibregl-popup { z-index: 30; max-width: 300px !important; }
+.orbiflare-tip .maplibregl-popup-content { padding: 5px 8px; }
+.maplibregl-popup-content { max-height: 320px; overflow-y: auto;
   background: #FBF9F3 !important;
   color: #1F2421 !important;
   border: 1px solid #C2BAA5 !important;
@@ -57,4 +59,4 @@ body {
 
 /* Restrained basemap: keep OSM readable but mute it to warm greys. Markers/popups are DOM and unaffected. */
 .orbiflare-map { background: #E9E4D6; }
-.orbiflare-map .maplibregl-canvas { filter: saturate(0.25) sepia(0.18) contrast(0.92) brightness(1.02); }
+/* basemap desaturation is done inside the raster layer (MapPanel), so event/facility colours are never filtered */

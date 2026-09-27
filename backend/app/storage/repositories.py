@@ -189,6 +189,7 @@ def attach_derived_event_fields(db: Session, events: list[sc.ThermalEvent]) -> l
     facility_ids = {e.facility_id for e in events if e.facility_id}
     facility_type_by_id: dict[str, str] = {}
     baseline_confidence_by_id: dict[str, sc.BaselineConfidence] = {}
+    history_count_by_id: dict[str, int] = {}
     for fid in facility_ids:
         f = get_facility(db, fid)
         if f:
@@ -196,13 +197,25 @@ def attach_derived_event_fields(db: Session, events: list[sc.ThermalEvent]) -> l
         twin = get_thermal_twin(db, fid)
         if twin:
             baseline_confidence_by_id[fid] = twin.baseline_confidence
+            history_count_by_id[fid] = twin.historical_event_count
 
     for e in events:
         e.overall_deviation_score = deviation_scores.get(e.event_id)
         if e.facility_id:
             e.facility_type = facility_type_by_id.get(e.facility_id)
             e.baseline_confidence = baseline_confidence_by_id.get(e.facility_id)
+        e.source_interpretation = source_interpretation_summary(e, history_count_by_id)
     return events
+
+
+def source_interpretation_summary(e: sc.ThermalEvent, history_count_by_id: dict[str, int]) -> dict | None:
+    """{classification, label, strength} for map/list views; the full evidence is served by /events/{id}/interpretation."""
+    from app.intelligence import history_baseline as hb, source_interpretation as si
+    try:
+        typed, static = hb.get_store().type_counts(e.facility_id) if e.facility_id else (0, 0)
+        return si.interpret(e, facility_type=e.facility_type, history_events=history_count_by_id.get(e.facility_id or "", 0), typed_history=typed, static_history=static).summary()
+    except Exception:                                         # a derived label must never break a list view
+        return None
 
 
 def event_to_schema(row: m.EventRecord) -> sc.ThermalEvent:

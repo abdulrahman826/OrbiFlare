@@ -361,7 +361,32 @@ def _event_summary(e) -> dict:
     }
 
 
+def get_source_interpretation(db: Session, event_id: str) -> dict | None:
+    """Full evidence-based source interpretation of one event (read-only; candidate labels, never a confirmed fire)."""
+    from app.intelligence import interpretation_service
+    row = repo.get_event(db, event_id)
+    if row is None:
+        return None
+    event = repo.attach_derived_event_fields(db, [repo.event_to_schema(row)])[0]
+    return {"event": _event_summary(event), **interpretation_service.interpretation_for(db, event).full()}
+
+
+def list_events_by_interpretation(db: Session, interpretation: str, limit: int | None = 10) -> list[dict]:
+    rows = repo.list_events(db)
+    events = repo.attach_derived_event_fields(db, [repo.event_to_schema(r) for r in rows if r.status != "EXTINGUISHED"])
+    picked = [e for e in events if (e.source_interpretation or {}).get("classification") == interpretation]
+    picked.sort(key=lambda e: e.risk_score or 0, reverse=True)
+    out = []
+    for e in picked[:limit]:
+        d = _event_summary(e)
+        d["source_interpretation"] = e.source_interpretation
+        out.append(d)
+    return out
+
+
 TOOL_REGISTRY: dict[str, Any] = {
+    "get_source_interpretation": get_source_interpretation,
+    "list_events_by_interpretation": list_events_by_interpretation,
     "list_events": list_events,
     "get_event": get_event,
     "get_investigation": get_investigation_tool,

@@ -22,6 +22,7 @@ import type {
   ThermalEvent,
   ThermalObservation,
   ThermalTwin,
+  HistoryStatus,
 } from "@/types/domain";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
@@ -73,6 +74,7 @@ export const api = {
   listFacilities: (facility_type?: string) =>
     request<Facility[]>(`/facilities${facility_type ? `?facility_type=${facility_type}` : ""}`),
   getFacility: (id: string) => request<Facility>(`/facilities/${id}`),
+  historyStatus: () => request<HistoryStatus>(`/history/status`),
   getFacilityTwin: (id: string) => request<ThermalTwin>(`/facilities/${id}/thermal-twin`),
   getFacilityEvents: (id: string) => request<ThermalEvent[]>(`/facilities/${id}/events`),
   listThermalTwins: () => request<ThermalTwin[]>(`/thermal-twins`),

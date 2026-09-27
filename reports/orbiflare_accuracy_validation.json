@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-25 05:13 UTC",
+  "generated": "2026-09-26 18:29 UTC",
   "rf": {
     "main": {
       "n": 285,
@@ -374,7 +374,7 @@
         "denominator": 1400,
         "percent": 6.36,
         "population": "1,400 synthetic training corpus rows",
-        "date": "2026-09-25 05:13 UTC",
+        "date": "2026-09-26 18:29 UTC",
         "method": "count"
       },
       "rows_with_dist_45_55": {
@@ -383,7 +383,7 @@
         "denominator": 1400,
         "percent": 1.57,
         "population": "training corpus",
-        "date": "2026-09-25 05:13 UTC",
+        "date": "2026-09-26 18:29 UTC",
         "method": "count"
       },
       "class_A_rows_with_dist_ge_45": {
@@ -392,7 +392,7 @@
         "denominator": 673,
         "percent": 1.93,
         "population": "class A rows",
-        "date": "2026-09-25 05:13 UTC",
+        "date": "2026-09-26 18:29 UTC",
         "method": "count"
       },
       "class_B_rows_with_dist_ge_45": {
@@ -401,7 +401,7 @@
         "denominator": 727,
         "percent": 7.02,
         "population": "class B rows",
-        "date": "2026-09-25 05:13 UTC",
+        "date": "2026-09-26 18:29 UTC",
         "method": "count"
       },
       "class_B_rows_45_55": {
@@ -410,128 +410,128 @@
         "denominator": 727,
         "percent": 2.34,
         "population": "class B rows",
-        "date": "2026-09-25 05:13 UTC",
+        "date": "2026-09-26 18:29 UTC",
         "method": "count"
       },
       "class_A_maximum_distance_km": 103.04721939657229
     },
     "p_class_A_vs_distance_sweep": {
       "typical live event (median bt, frp)": {
-        "0.1": 0.4563,
-        "1": 0.4393,
-        "2": 0.3983,
-        "3": 0.3738,
-        "5": 0.3348,
-        "10": 0.2575,
-        "20": 0.2979,
-        "30": 0.3041,
+        "0.1": 0.476,
+        "1": 0.4624,
+        "2": 0.4288,
+        "3": 0.4076,
+        "5": 0.361,
+        "10": 0.2566,
+        "20": 0.2955,
+        "30": 0.3019,
         "40": 0.3247,
-        "50": 0.3381,
-        "80": 0.3597,
-        "120": 0.3597
+        "50": 0.3389,
+        "80": 0.3604,
+        "120": 0.3604
       },
       "persistent live event (persistence 6)": {
-        "0.1": 0.8458,
-        "1": 0.8631,
-        "2": 0.8305,
-        "3": 0.8229,
-        "5": 0.5794,
+        "0.1": 0.8583,
+        "1": 0.8746,
+        "2": 0.8412,
+        "3": 0.8319,
+        "5": 0.5898,
         "10": 0.247,
-        "20": 0.2709,
-        "30": 0.2875,
-        "40": 0.3206,
-        "50": 0.3289,
-        "80": 0.3433,
-        "120": 0.3433
+        "20": 0.2735,
+        "30": 0.2884,
+        "40": 0.3241,
+        "50": 0.3305,
+        "80": 0.3449,
+        "120": 0.3449
       }
     },
     "p_class_A_at_50_vs_neighbours": {
       "typical live event (median bt, frp)": {
-        "p50": 0.3381,
-        "p30": 0.3041,
-        "p120": 0.3597,
-        "p50_minus_p30": 0.034,
-        "p50_minus_p120": -0.0216
+        "p50": 0.3389,
+        "p30": 0.3019,
+        "p120": 0.3604,
+        "p50_minus_p30": 0.037,
+        "p50_minus_p120": -0.0215
       },
       "persistent live event (persistence 6)": {
-        "p50": 0.3289,
-        "p30": 0.2875,
-        "p120": 0.3433,
-        "p50_minus_p30": 0.0414,
+        "p50": 0.3305,
+        "p30": 0.2884,
+        "p120": 0.3449,
+        "p50_minus_p30": 0.0421,
         "p50_minus_p120": -0.0144
       }
     },
     "live_effect_on_LOW_quality_events": {
-      "events": 347,
+      "events": 428,
       "class_flips_when_using_sentinel": {
         "metric": "LOW-quality events whose predicted class differs sentinel vs actual generic distance",
-        "numerator": 125,
-        "denominator": 347,
-        "percent": 36.02,
+        "numerator": 143,
+        "denominator": 428,
+        "percent": 33.41,
         "population": "live events with LOW-quality facility context",
-        "date": "2026-09-25 05:13 UTC",
+        "date": "2026-09-26 18:29 UTC",
         "method": "predict_proba >= 0.5, everything else identical"
       },
-      "mean_p_A_actual_distance": 0.44584175369574425,
-      "mean_p_A_sentinel_50km": 0.23557354868047867,
-      "mean_shift": -0.21026820501526552,
-      "actual_distance_km_median": 0.576
+      "mean_p_A_actual_distance": 0.4427864129661881,
+      "mean_p_A_sentinel_50km": 0.2411690465409153,
+      "mean_shift": -0.20161736642527275,
+      "actual_distance_km_median": 0.6695
     },
-    "live_no_context_events_n": 581,
-    "live_no_context_mean_p_A_at_50": 0.28777902946540734,
-    "live_no_context_mean_p_A_at_3km_assumed_edge": 0.4303267575886193,
+    "live_no_context_events_n": 919,
+    "live_no_context_mean_p_A_at_50": 0.2979942967119442,
+    "live_no_context_mean_p_A_at_3km_assumed_edge": 0.43868352121206416,
     "assessment": "50 km is INSIDE the training range (max 172.0 km) but sparsely populated: 64/1400 rows lie at >= 45 km (51/727 class-B rows, 13/673 class-A rows; the class-A ones are label-noise flips). The forest's response to distance is NOT monotone (see the sweep: P(A) is lower at 10 km than at 50 km for typical events) because it has few samples in the far tail, so 50 km is read as 'somewhat far', not as a clean 'no facility'. That is the intended meaning for a LOW-quality generic record, but it is also an ARTIFICIAL classification effect: the true distance is unknown-but-within-search-radius, and the model receives a specific far value. Recommendation (NOT applied): represent 'no usable facility' as a missing-value indicator (separate binary feature) or train with an explicit no-facility class, instead of a magic distance."
   },
   "shift": {
     "note": "Share of LIVE events whose feature lies outside the range the RF saw in training (synthetic corpus).",
     "persistence_gt_training_max": {
       "metric": "live events with persistence > training max",
-      "numerator": 8,
-      "denominator": 1012,
-      "percent": 0.79,
+      "numerator": 9,
+      "denominator": 1449,
+      "percent": 0.62,
       "population": "live events",
-      "date": "2026-09-25 05:13 UTC",
+      "date": "2026-09-26 18:29 UTC",
       "method": "training max persistence = 14"
     },
     "frp_gt_training_max": {
       "metric": "live events with FRP > training max",
       "numerator": 0,
-      "denominator": 1012,
+      "denominator": 1449,
       "percent": 0.0,
       "population": "live events",
-      "date": "2026-09-25 05:13 UTC",
+      "date": "2026-09-26 18:29 UTC",
       "method": "training max FRP = 120"
     },
     "bt_outside_training": {
       "metric": "live events with BT outside training range",
       "numerator": 0,
-      "denominator": 1012,
+      "denominator": 1449,
       "percent": 0.0,
       "population": "live events",
-      "date": "2026-09-25 05:13 UTC",
+      "date": "2026-09-26 18:29 UTC",
       "method": "training BT range 290..389 K"
     },
     "live_feature_summary": {
       "bt": {
         "min": 295.29,
-        "median": 329.435,
+        "median": 331.62,
         "max": 367.0
       },
       "frp": {
         "min": 0.16,
-        "median": 2.355,
-        "max": 34.08
+        "median": 2.84,
+        "max": 34.68
       },
       "obs": {
         "min": 1.0,
         "median": 1.0,
-        "max": 74.0
+        "max": 93.0
       }
     },
     "live_predicted_class_counts": {
-      "null": 928,
-      "NATURAL_AGRICULTURAL_FIRE_CANDIDATE": 45,
-      "PERSISTENT_INDUSTRIAL_THERMAL_SOURCE": 39
+      "null": 1347,
+      "NATURAL_AGRICULTURAL_FIRE_CANDIDATE": 57,
+      "PERSISTENT_INDUSTRIAL_THERMAL_SOURCE": 45
     }
   },
   "backtest": {
@@ -543,7 +543,7 @@
     ],
     "stored_firms_window": [
       "2026-09-20 06:20:00.000000",
-      "2026-09-24 21:50:00.000000"
+      "2026-09-26 08:48:00.000000"
     ],
     "raw_parquet": {
       "path": "data/raw/firms_observations.parquet",
@@ -583,7 +583,7 @@
       "denominator": 30,
       "percent": 0.0,
       "population": "30 curated historical incidents (2019-2023)",
-      "date": "2026-09-25 05:13 UTC",
+      "date": "2026-09-26 18:29 UTC",
       "method": "incident date inside the stored FIRMS observation window"
     },
     "incidents_not_evaluable_missing_coverage": {
@@ -592,7 +592,7 @@
       "denominator": 30,
       "percent": 100.0,
       "population": "same",
-      "date": "2026-09-25 05:13 UTC",
+      "date": "2026-09-26 18:29 UTC",
       "method": "same; NOT counted as model failures"
     },
     "incidents_with_nearby_firms_observations": {
@@ -601,7 +601,7 @@
       "denominator": 30,
       "percent": 0.0,
       "population": "same",
-      "date": "2026-09-25 05:13 UTC",
+      "date": "2026-09-26 18:29 UTC",
       "method": "SQL count"
     },
     "incidents_surfaced_as_events": null,
@@ -859,17 +859,17 @@
     "note": "Spatial association only. Says nothing about causation.",
     "indexed_facilities": 38189,
     "radius_km": 3.0,
-    "events_tested": 1012,
+    "events_tested": 1449,
     "exact_matches": {
       "metric": "events whose stored facility association equals the independent recomputation",
-      "numerator": 1012,
-      "denominator": 1012,
+      "numerator": 1449,
+      "denominator": 1449,
       "percent": 100.0,
       "population": "all live events",
-      "date": "2026-09-25 05:13 UTC",
+      "date": "2026-09-26 18:29 UTC",
       "method": "brute-force haversine to every indexed facility (numpy), nearest within radius; id equal and distance within 0.02 km; 'none' must also match"
     },
-    "events_with_context": 431,
+    "events_with_context": 530,
     "mismatches": {
       "wrong_facility": 0,
       "wrong_distance": 0,
@@ -878,35 +878,35 @@
     },
     "mismatch_examples": [],
     "quality_counts_events": {
-      "MEDIUM": 22,
-      "LOW": 347,
-      "HIGH": 62
+      "MEDIUM": 29,
+      "LOW": 428,
+      "HIGH": 73
     }
   },
   "firms_fidelity": {
     "note": "Independent csv-module parse of a fresh NASA response, compared to the stored rows. Ingestion fidelity, NOT accuracy of fire detection.",
     "products": {
       "VIIRS_NOAA21_NRT": {
-        "rows_from_nasa_now": 634,
-        "exact": 634,
+        "rows_from_nasa_now": 728,
+        "exact": 728,
         "field_mismatch": 0,
         "not_in_database": 0
       },
       "VIIRS_NOAA20_NRT": {
-        "rows_from_nasa_now": 712,
-        "exact": 712,
+        "rows_from_nasa_now": 709,
+        "exact": 709,
         "field_mismatch": 0,
         "not_in_database": 0
       }
     },
-    "observations_checked": 1346,
+    "observations_checked": 1437,
     "exact_matches": {
       "metric": "NASA rows reproduced exactly in the database (lat, lon, time, satellite, FRP, BT4, BT5, confidence, day/night, scan, track)",
-      "numerator": 1346,
-      "denominator": 1346,
+      "numerator": 1437,
+      "denominator": 1437,
       "percent": 100.0,
       "population": "rows NASA returns right now for the configured products/window",
-      "date": "2026-09-25 05:13 UTC",
+      "date": "2026-09-26 18:29 UTC",
       "method": "csv-module parse vs stored row"
     },
     "field_mismatch_counts": {},
@@ -915,8 +915,8 @@
   },
   "tests": {
     "full_backend_suite": {
-      "total": 275,
-      "passed": 275,
+      "total": 327,
+      "passed": 327,
       "failed": 0,
       "skipped": 0,
       "exit_code": 0
@@ -1006,57 +1006,57 @@
     "population": "live (non-demo) events in the primary database",
     "severity_matches_thresholds": {
       "metric": "events whose severity equals the threshold mapping of their score (35/60/80)",
-      "numerator": 1012,
-      "denominator": 1012,
+      "numerator": 1449,
+      "denominator": 1449,
       "percent": 100.0,
       "population": "live events",
-      "date": "2026-09-25 05:13 UTC",
+      "date": "2026-09-26 18:29 UTC",
       "method": "recomputed from config thresholds"
     },
     "stored_risk_equals_event_risk": {
       "metric": "risk_assessments.risk_score == events.risk_score",
-      "numerator": 1012,
-      "denominator": 1012,
+      "numerator": 1449,
+      "denominator": 1449,
       "percent": 100.0,
       "population": "live events",
-      "date": "2026-09-25 05:13 UTC",
+      "date": "2026-09-26 18:29 UTC",
       "method": "SQL join"
     },
     "risk_in_0_100": {
       "metric": "risk score within [0,100]",
-      "numerator": 1012,
-      "denominator": 1012,
+      "numerator": 1449,
+      "denominator": 1449,
       "percent": 100.0,
       "population": "live events",
-      "date": "2026-09-25 05:13 UTC",
+      "date": "2026-09-26 18:29 UTC",
       "method": "range check"
     },
     "trajectory_final_point_equals_event_risk": {
       "metric": "events whose last trajectory point equals the stored risk (+/-0.06)",
-      "numerator": 1012,
-      "denominator": 1012,
+      "numerator": 1449,
+      "denominator": 1449,
       "percent": 100.0,
       "population": "live events with trajectory points",
-      "date": "2026-09-25 05:13 UTC",
+      "date": "2026-09-26 18:29 UTC",
       "method": "SQL"
     },
     "trajectory_timestamps_monotone": {
       "metric": "events with non-decreasing trajectory timestamps",
-      "numerator": 1012,
-      "denominator": 1012,
+      "numerator": 1449,
+      "denominator": 1449,
       "percent": 100.0,
       "population": "live events with trajectory points",
-      "date": "2026-09-25 05:13 UTC",
+      "date": "2026-09-26 18:29 UTC",
       "method": "SQL"
     },
     "limited_baseline_cap": {
-      "events": 98,
+      "events": 40,
       "cap_pts": 14.0,
-      "max_observed": 9.34,
+      "max_observed": 5.84,
       "violations": 0
     },
-    "established_baseline_events": 21,
-    "insufficient_or_no_baseline_events": 893,
+    "established_baseline_events": 410,
+    "insufficient_or_no_baseline_events": 999,
     "insufficient_nonzero_deviation_violations": 0,
     "low_quality_facility_with_risk_contribution_violations": 0,
     "thresholds": {
@@ -1069,90 +1069,91 @@
   },
   "live": {
     "note": "Operational statistics. NOT accuracy.",
-    "firms_observations": 1873,
+    "firms_observations": 2499,
     "by_satellite": {
-      "N20": 956,
-      "N21": 917
+      "N20": 1212,
+      "N21": 1287
     },
     "acquisition_range_utc": [
       "2026-09-20 06:20:00.000000",
-      "2026-09-24 21:50:00.000000"
+      "2026-09-26 08:48:00.000000"
     ],
     "nasa_confidence": {
-      "h": 10,
-      "l": 121,
-      "n": 1742
+      "h": 17,
+      "l": 228,
+      "n": 2254
     },
     "synthetic_observations": 0,
     "synthetic_events": 0,
-    "events": 1012,
+    "events": 1449,
     "severity": {
-      "LOW": 1007,
-      "MEDIUM": 5
+      "LOW": 1430,
+      "MEDIUM": 17,
+      "HIGH": 2
     },
     "trajectory": {
-      "INSUFFICIENT_DATA": 709,
-      "STABLE": 230,
-      "ESCALATING": 14,
-      "INCREASING": 57,
-      "DECREASING": 2
+      "INSUFFICIENT_DATA": 1057,
+      "STABLE": 294,
+      "INCREASING": 75,
+      "ESCALATING": 23
     },
-    "escalating": 14,
-    "persistent_ge6_obs": 41,
+    "escalating": 23,
+    "persistent_ge6_obs": 49,
     "status": {
-      "DETECTED": 1012
+      "DETECTED": 1448,
+      "EXTINGUISHED": 1
     },
-    "max_risk": 44.0,
-    "facility_context_events": 431,
+    "max_risk": 61.5,
+    "facility_context_events": 530,
     "context_quality": {
-      "MEDIUM": 22,
-      "LOW": 347,
-      "HIGH": 62
+      "MEDIUM": 29,
+      "LOW": 428,
+      "HIGH": 73
     },
-    "events_no_facility_context": 581,
-    "referenced_facilities": 282,
+    "events_no_facility_context": 919,
+    "referenced_facilities": 337,
     "facility_twins": {
-      "ESTABLISHED": 4,
-      "INSUFFICIENT": 252,
-      "LIMITED": 26
+      "ESTABLISHED": 221,
+      "INSUFFICIENT": 78,
+      "LIMITED": 38
     },
     "event_baselines_from_risk": {
-      "INSUFFICIENT": 893,
-      "LIMITED": 98,
-      "ESTABLISHED": 21
+      "INSUFFICIENT": 999,
+      "LIMITED": 40,
+      "ESTABLISHED": 410
     },
     "refresh": {
       "first": {
         "status": "OK",
-        "observations_received": 1346,
+        "observations_received": 1437,
         "new_observations": 0,
         "updated_observations": 0,
-        "events_total": 1012,
+        "events_total": 1449,
         "events_created": 0,
         "events_updated": 0,
-        "events_unchanged": 1012,
+        "events_unchanged": 1449,
         "events_merged": 0,
         "events_split": 0,
-        "seconds": 12.1
+        "seconds": 20.1
       },
       "immediately_after": {
         "status": "OK",
-        "observations_received": 1346,
+        "observations_received": 1437,
         "new_observations": 0,
         "updated_observations": 0,
-        "events_total": 1012,
+        "events_total": 1449,
         "events_created": 0,
         "events_updated": 0,
-        "events_unchanged": 1012,
+        "events_unchanged": 1449,
         "events_merged": 0,
         "events_split": 0,
-        "seconds": 11.6
+        "seconds": 20.0
       },
       "idempotent": true
     }
   },
   "claims": {
-    "files_scanned": 155,
+    "files_scanned": 164,
     "patterns": [
       "accuracy percentage",
       "fire probability",
@@ -1165,8 +1166,8 @@
       "bare accuracy KPI",
       "independent confirmation"
     ],
-    "hits_total": 62,
-    "hits_safe_denial": 61,
+    "hits_total": 75,
+    "hits_safe_denial": 74,
     "hits_review": [
       {
         "file": "README.md",
@@ -1188,17 +1189,25 @@
       },
       {
         "file": "frontend/src/components/MapPanel.tsx",
-        "line": 89,
+        "line": 101,
         "pattern": "confirmed fire",
-        "text": "<div className=\"mt-1 max-w-[330px] border-t border-base-700 pt-1 leading-snug text-base-400\">Severity is OrbiFlare's event risk, not FIRMS detection confidence. A FIRMS detection is a thermal observation, not a confirmed",
+        "text": "<div className=\"mt-1 max-w-[330px] border-t border-base-700 pt-1 leading-snug text-base-400\">Fill = source interpretation (an evidence-based candidate label); ring = OrbiFlare operational priority (not FIRMS confidence).",
         "context": "DENIAL/NEGATED (safe)",
         "recommended": "FIRMS detections are 'thermal observations'; only a denial ('not a confirmed fire') is acceptable."
       },
       {
         "file": "frontend/src/components/MapPanel.tsx",
-        "line": 196,
+        "line": 209,
         "pattern": "confirmed fire",
         "text": "`<div style=\"font-size:11px\"><b>${demo ? \"Demo observation\" : \"FIRMS thermal observation\"}</b><br/>${esc(p.sensor)} &middot; ${esc(String(p.ts).replace(\"T\", \" \"))}${demo ? \"\" : \" UTC\"}<br/>FRP ${esc(p.frp ?? \"--\")} MW &m",
+        "context": "DENIAL/NEGATED (safe)",
+        "recommended": "FIRMS detections are 'thermal observations'; only a denial ('not a confirmed fire') is acceptable."
+      },
+      {
+        "file": "frontend/src/components/MapPanel.tsx",
+        "line": 288,
+        "pattern": "confirmed fire",
+        "text": "// Two separate dimensions: FILL = source interpretation, RING + letter = operational priority. Neither implies a confirmed fire.",
         "context": "DENIAL/NEGATED (safe)",
         "recommended": "FIRMS detections are 'thermal observations'; only a denial ('not a confirmed fire') is acceptable."
       },
@@ -1227,6 +1236,22 @@
         "recommended": "FIRMS detections are 'thermal observations'; only a denial ('not a confirmed fire') is acceptable."
       },
       {
+        "file": "frontend/src/components/SourceInterpretationPanel.tsx",
+        "line": 4,
+        "pattern": "confirmed fire",
+        "text": "/** Source interpretation near the top of an investigation: candidate label, strength, the evidence behind it and the alternatives. Never a confirmed fire. */",
+        "context": "DENIAL/NEGATED (safe)",
+        "recommended": "FIRMS detections are 'thermal observations'; only a denial ('not a confirmed fire') is acceptable."
+      },
+      {
+        "file": "frontend/src/components/SourceInterpretationPanel.tsx",
+        "line": 15,
+        "pattern": "confirmed fire",
+        "text": "<span className=\"font-mono text-[10px] uppercase tracking-wider text-base-400\">candidate label \u00b7 not a confirmed fire</span>",
+        "context": "DENIAL/NEGATED (safe)",
+        "recommended": "FIRMS detections are 'thermal observations'; only a denial ('not a confirmed fire') is acceptable."
+      },
+      {
         "file": "frontend/src/lib/assessment.ts",
         "line": 43,
         "pattern": "causation from proximity",
@@ -1236,7 +1261,7 @@
       },
       {
         "file": "frontend/src/lib/assessment.ts",
-        "line": 57,
+        "line": 59,
         "pattern": "causation from proximity",
         "text": "export const NEARBY_NOTE = \"Nearby does not mean caused by. Facility distance is spatial association only.\";",
         "context": "DENIAL/NEGATED (safe)",
@@ -1244,7 +1269,7 @@
       },
       {
         "file": "frontend/src/lib/assessment.ts",
-        "line": 59,
+        "line": 61,
         "pattern": "independent confirmation",
         "text": "\"ML evidence uses proxy-labelled development data and partially overlaps with facility-context features. It should not be interpreted as an independent confirmation.\";",
         "context": "DENIAL/NEGATED (safe)",
@@ -1252,7 +1277,7 @@
       },
       {
         "file": "frontend/src/lib/assessment.ts",
-        "line": 98,
+        "line": 100,
         "pattern": "confirmed fire",
         "text": "out.push(\"No independent confirmation: a FIRMS detection is a thermal observation, not a confirmed fire.\");",
         "context": "DENIAL/NEGATED (safe)",
@@ -1260,47 +1285,23 @@
       },
       {
         "file": "frontend/src/lib/assessment.ts",
-        "line": 98,
+        "line": 100,
         "pattern": "independent confirmation",
         "text": "out.push(\"No independent confirmation: a FIRMS detection is a thermal observation, not a confirmed fire.\");",
         "context": "DENIAL/NEGATED (safe)",
         "recommended": "Only acceptable when denying independence."
       },
       {
-        "file": "frontend/src/app/command-center/page.tsx",
-        "line": 64,
+        "file": "frontend/src/lib/interpretation.ts",
+        "line": 3,
         "pattern": "confirmed fire",
-        "text": "<PageHeader title=\"Command Center\" sub=\"Evolving thermal events prioritised for analyst investigation. Detections are observations, not confirmed fires.\" action={<FirmsRefreshControl firms={health?.firms ?? null} />} />",
-        "context": "DENIAL/NEGATED (safe)",
-        "recommended": "FIRMS detections are 'thermal observations'; only a denial ('not a confirmed fire') is acceptable."
-      },
-      {
-        "file": "frontend/src/app/command-center/page.tsx",
-        "line": 83,
-        "pattern": "fire probability",
-        "text": "sub=\"Top by risk score (operational priority, not fire probability)\"",
-        "context": "DENIAL/NEGATED (safe)",
-        "recommended": "Use 'operational priority score' / 'thermal-source class probability (proxy-labelled)'."
-      },
-      {
-        "file": "frontend/src/app/gis/page.tsx",
-        "line": 82,
-        "pattern": "confirmed fire",
-        "text": "<p className=\"mt-3 text-[10px] leading-snug text-base-400\">A FIRMS observation is a satellite thermal detection, not a confirmed fire.</p>",
-        "context": "DENIAL/NEGATED (safe)",
-        "recommended": "FIRMS detections are 'thermal observations'; only a denial ('not a confirmed fire') is acceptable."
-      },
-      {
-        "file": "frontend/src/app/limitations/page.tsx",
-        "line": 76,
-        "pattern": "confirmed fire",
-        "text": "<li><span className=\"text-sev-critical\">\u2717</span> A thermal detection is automatically a confirmed fire.</li>",
+        "text": "// dimensions: the marker FILL shows the interpretation, the marker RING and letter show the severity. Neither implies a confirmed fire.",
         "context": "DENIAL/NEGATED (safe)",
         "recommended": "FIRMS detections are 'thermal observations'; only a denial ('not a confirmed fire') is acceptable."
       }
     ]
   },
-  "visual": "See reports/orbiflare_final_hardening_report.md (browser screenshots of Model, Investigation x2, Command Center, Events were captured in this pass; earlier pass covered the remaining pages).",
+  "visual": "See final audit",
   "ablation_interpretation": "Removing facility distance alone changes macro-F1 by -0.073; removing both label-rule inputs (distance and persistence) changes it by -0.114 (macro-F1 0.697). Performance is carried by the same signals used to construct the proxy labels; the remaining features (BT, FRP, month, day/night) are generated from the same latent 'industrial world' flag, so they are correlated with the label for synthetic reasons, not because the physics was learned.",
   "limitations": [
     "No verified ground truth: the RF has never been evaluated on a real, independently labelled industrial-incident set.",

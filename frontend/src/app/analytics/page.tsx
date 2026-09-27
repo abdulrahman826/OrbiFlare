@@ -81,14 +81,14 @@ export default async function AnalyticsPage() {
 
       <Panel title="Model metrics summary">
         <div className="grid grid-cols-2 gap-3 text-xs md:grid-cols-5">
-          <Stat label="Macro-F1 (development set)" value={metrics.macro_f1 != null ? metrics.macro_f1.toFixed(2) : "--"} />
-          <Stat label="ROC-AUC (development set)" value={metrics.roc_auc ? metrics.roc_auc.toFixed(2) : "--"} />
+          <Stat label="Macro-F1 · development-set agreement with the labelling rule" value={metrics.macro_f1 != null ? metrics.macro_f1.toFixed(2) : "--"} />
+          <Stat label="ROC-AUC · development-set agreement with the labelling rule" value={metrics.roc_auc ? metrics.roc_auc.toFixed(2) : "--"} />
           <Stat label="Train / hold-out size" value={`${metrics.n_train} / ${metrics.n_val}`} />
           <Stat label="Evaluation" value="Random hold-out" />
           <Stat label="Version" value={metrics.model_version} />
         </div>
         <p className="mt-3 text-[11px] text-base-500">
-          Development-set evaluation of the ML evidence layer -- see the <a href="/model" className="text-accent hover:underline">Model page</a> for full caveats. This is not real-world fire-detection accuracy.
+          Development-set evaluation of the ML evidence layer -- see the <a href="/model" className="text-accent hover:underline">Model page</a> for full caveats. These scores are not fire-detection accuracy, real-world accuracy or fire-prediction accuracy.
         </p>
       </Panel>
 

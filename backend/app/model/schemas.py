@@ -175,6 +175,7 @@ class ThermalEvent(BaseModel):
 
     facility_id: Optional[str] = None
     facility_distance_km: Optional[float] = None
+    source_interpretation: Optional[dict] = None     # derived read-model field: {classification, label, strength} (see intelligence/source_interpretation.py)
     facility_context_quality: Optional[str] = None   # HIGH | MEDIUM | LOW (None = not classified, e.g. synthetic fixtures)
 
     status: AlertState = AlertState.DETECTED
@@ -429,6 +430,7 @@ class Investigation(BaseModel):
     uncertainty_notes: list[str] = Field(default_factory=list)
     operator_state: AlertState = AlertState.DETECTED
     operator_history: list[dict] = Field(default_factory=list)
+    source_interpretation: Optional[dict] = None   # full evidence-based interpretation (candidate labels; never a confirmed fire)
 
 
 # ---------------------------------------------------------------------------

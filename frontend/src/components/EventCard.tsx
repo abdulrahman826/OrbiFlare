@@ -4,6 +4,7 @@ import { RiskBadge } from "@/components/RiskBadge";
 import { TrajectoryBadge } from "@/components/TrajectoryBadge";
 import { cn } from "@/lib/cn";
 import { classificationLabel, fmtDate, fmtNum } from "@/lib/format";
+import { INTERP_HEX, interpretationOf, strengthText } from "@/lib/interpretation";
 import type { Severity, ThermalEvent } from "@/types/domain";
 
 export const SEVERITY_EDGE: Record<Severity, string> = {
@@ -50,6 +51,10 @@ export function EventCard({ event, facilityName, selected }: { event: ThermalEve
         {classificationLabel(event.classification)}
         <span className="text-base-500"> · </span>
         <span className="font-mono">{fmtDate(event.first_detected)}</span>
+      </div>
+      <div className="mt-1 flex items-center gap-1.5 text-[11px] text-base-200" data-testid="source-interpretation-line">
+        <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-full border border-base-500" style={{ background: INTERP_HEX[interpretationOf(event).cls].fill }} aria-hidden />
+        <span className="truncate">{interpretationOf(event).label} <span className="text-base-500">· {strengthText(interpretationOf(event).strength)}</span></span>
       </div>
       <div className="mt-0.5 text-[11px] text-base-400" data-testid="ml-evidence">
         <span className="text-[10px] font-bold uppercase tracking-[0.08em] text-base-500">ML evidence</span>{" "}

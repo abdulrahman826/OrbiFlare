@@ -13,8 +13,12 @@ export default async function AgentPage() {
     "which events have insufficient baseline?",
     "which facility has the most persistent events?",
     "how many high risk events are active?",
+    "show industrial-source candidates",
+    "show agricultural thermal candidates",
+    "show uncertain thermal events",
+    "how many persistent thermal-source candidates are active?",
     "list historical incidents in Gujarat",
-    ...(top[0] ? [`why is ${top[0].event_id} high risk?`, `compare ${top[0].event_id} baseline`, `historical incidents near ${top[0].event_id}`] : []),
+    ...(top[0] ? [`why is ${top[0].event_id} high risk?`, `classify ${top[0].event_id}`, `compare ${top[0].event_id} baseline`, `historical incidents near ${top[0].event_id}`] : []),
     ...(top.length > 1 ? [`compare ${top[0].event_id} and ${top[1].event_id}`] : []),
     ...(facilities[0] ? [`what is the normal baseline for ${facilities[0].facility_id}`] : []),
   ];
