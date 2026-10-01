@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import Optional
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.model import schemas as sc
 from app.storage import models as m
@@ -148,7 +148,11 @@ def list_events(
     facility_id: Optional[str] = None, trajectory: Optional[str] = None,
     classification: Optional[str] = None,
 ) -> list[m.EventRecord]:
-    stmt = select(m.EventRecord)
+    # selectinload: every caller immediately builds ThermalEvent schemas via event_to_schema(), which reads
+    # .observations -- the relationship defaults to lazy="select", so without this every row would issue its
+    # own SELECT (fine on local SQLite, a serial network round-trip per event against a remote Postgres
+    # instance; this once stalled /api/events for 2000+ events). selectinload batches it into one extra query.
+    stmt = select(m.EventRecord).options(selectinload(m.EventRecord.observations))
     if severity:
         stmt = stmt.where(m.EventRecord.severity == severity)
     if status:
@@ -181,8 +185,11 @@ def attach_derived_event_fields(db: Session, events: list[sc.ThermalEvent]) -> l
     """Bulk-attach read-model-only fields that aren't columns on EventRecord
     itself (deviation score, facility type, facility baseline confidence) so
     list/filter/sort views (Events page, GIS, reports, agent) can use them
-    without an extra round-trip per event. Bulk-queried: O(events + distinct
-    facilities), never per-event."""
+    without an extra round-trip per event. A fixed number of queries
+    (deviations, facilities, twins), never one per event or per facility --
+    that distinction matters once the DB is a network hop away, not local
+    SQLite: a per-facility loop here once stalled /api/events for 2000+
+    events against a remote Postgres instance."""
     event_ids = [e.event_id for e in events]
     deviation_scores = list_deviation_scores(db, event_ids)
 
@@ -190,12 +197,18 @@ def attach_derived_event_fields(db: Session, events: list[sc.ThermalEvent]) -> l
     facility_type_by_id: dict[str, str] = {}
     baseline_confidence_by_id: dict[str, sc.BaselineConfidence] = {}
     history_count_by_id: dict[str, int] = {}
-    for fid in facility_ids:
-        f = get_facility(db, fid)
-        if f:
-            facility_type_by_id[fid] = f.facility_type
-        twin = get_thermal_twin(db, fid)
-        if twin:
+    if facility_ids:
+        facility_rows = db.execute(
+            select(m.FacilityRecord.facility_id, m.FacilityRecord.facility_type)
+            .where(m.FacilityRecord.facility_id.in_(facility_ids))
+        ).all()
+        facility_type_by_id = {fid: ftype for fid, ftype in facility_rows}
+        twin_rows = db.execute(
+            select(m.ThermalTwinRecord.facility_id, m.ThermalTwinRecord.payload)
+            .where(m.ThermalTwinRecord.facility_id.in_(facility_ids))
+        ).all()
+        for fid, payload in twin_rows:
+            twin = sc.ThermalTwin.model_validate(payload)
             baseline_confidence_by_id[fid] = twin.baseline_confidence
             history_count_by_id[fid] = twin.historical_event_count
 
