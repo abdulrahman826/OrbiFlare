@@ -19,3 +19,7 @@ services:
         sync: false          # set in the Render dashboard (a NEW, rotated key)
       - key: CORS_ORIGINS
         sync: false          # your Vercel URL, e.g. https://orbiflare.vercel.app
+      - key: DATABASE_URL
+        sync: false          # set in the Render dashboard -- external Postgres (e.g. Neon) so data survives restarts;
+                              # Render's free/starter plans have no persistent disk, so local SQLite is wiped on every
+                              # restart otherwise
