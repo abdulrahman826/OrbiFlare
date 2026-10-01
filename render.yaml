@@ -22,4 +22,6 @@ services:
       - key: DATABASE_URL
         sync: false          # set in the Render dashboard -- external Postgres (e.g. Neon) so data survives restarts;
                               # Render's free/starter plans have no persistent disk, so local SQLite is wiped on every
-                              # restart otherwise
+                              # restart otherwise. MUST start with postgresql+psycopg2:// (not bare postgresql://) --
+                              # SQLAlchemy 2.1 defaults an unqualified scheme to the psycopg3 driver, which isn't
+                              # installed (backend/requirements.txt has psycopg2-binary)
