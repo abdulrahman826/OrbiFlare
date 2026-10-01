@@ -10,6 +10,11 @@ COPY data/facilities data/facilities
 COPY data/reference data/reference
 COPY data/firms data/firms
 RUN mkdir -p backend/data
+# Committed pretrained model artifacts -- without this the app retrains a RandomForest in-process on every
+# container start (no persistent disk means the data/ dir is always empty otherwise), adding CPU/memory load
+# during the startup window.
+COPY backend/data/rf_model.joblib backend/data/rf_model.joblib
+COPY backend/data/rf_model_no_facility.joblib backend/data/rf_model_no_facility.joblib
 WORKDIR /app/backend
 # Render injects $PORT
 CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

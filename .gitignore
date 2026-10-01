@@ -30,7 +30,11 @@ data/raw/*.parquet
 backend/data/*.db
 backend/data/*.parquet
 backend/data/*.sqlite
-backend/data/*.joblib
+# rf_model.joblib / rf_model_no_facility.joblib ARE committed: Render has no persistent disk, so without them the
+# app would retrain a RandomForest in-process on every single container restart -- extra CPU/memory load during
+# the exact startup window where the free plan's 512MB ceiling causes OOM kills. Regenerate with
+# `python -c "from app.model.train import train_and_evaluate; train_and_evaluate(save=True)"` after any change to
+# app/model/train.py or app/model/ml_schemas.py, then commit the updated files.
 backend/data/rf_metrics.json
 
 ## OS
