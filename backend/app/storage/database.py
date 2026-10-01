@@ -12,7 +12,7 @@ from __future__ import annotations
 from contextlib import contextmanager
 from typing import Iterator
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
@@ -33,6 +33,21 @@ if _is_sqlite_memory:
     _engine_kwargs["poolclass"] = StaticPool
 
 engine = create_engine(settings.database_url, **_engine_kwargs)
+
+if _is_sqlite:
+    @event.listens_for(engine, "connect")
+    def _set_sqlite_pragma(dbapi_connection, connection_record) -> None:
+        # SQLite's default journal mode gives a writer (e.g. the FIRMS ingestion
+        # pipeline, which holds one long write transaction) an exclusive lock for
+        # the whole transaction, and with no busy_timeout any concurrent reader
+        # (health checks, API requests) fails instantly with "database is locked"
+        # instead of waiting. WAL lets readers proceed during a write; busy_timeout
+        # makes any remaining contention retry instead of erroring immediately.
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA busy_timeout=30000")
+        if not _is_sqlite_memory:
+            cursor.execute("PRAGMA journal_mode=WAL")
+        cursor.close()
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
 
 
